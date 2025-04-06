@@ -18,11 +18,11 @@ module.exports = {
         usages: "[basic/full/admin]",
         cooldowns: 10,
         envConfig: {
-            // Cấu hình cho phép tùy chỉnh
+            // Cấu hình cho phép tùy chỉnh (đồng bộ với thông tin ở config
             SHOW_IP: false,           // Hiển thị IP hay không
             SHOW_ADMIN_INFO: true,    // Hiển thị thông tin admin
-            ADMIN_NAME: "Phoenix",     // Tên admin
-            ADMIN_CONTACT: "m.me/Phoenix.2417", // Liên hệ admin
+            ADMIN_NAME: "",     // Tên admin
+            ADMIN_CONTACT: "", // Liên hệ admin
             CUSTOM_LOGO: "",          // Link ảnh logo tùy chỉnh (để trống để dùng mặc định)
             MAX_COMMANDS_SHOW: 5      // Số lệnh được sử dụng nhiều nhất để hiển thị
         }
