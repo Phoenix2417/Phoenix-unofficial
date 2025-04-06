@@ -47,7 +47,7 @@
     "work": {
         "cooldownTime": 1200000
     },
-    "upt": {
+    "upt": { //chỗ này gắn theo thông tin của mdl upt
         "SHOW_IP": "",
         "SHOW_ADMIN_INFO": true,
         "ADMIN_NAME": "",
