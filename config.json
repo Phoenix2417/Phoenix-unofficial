@@ -29,13 +29,13 @@
     "FACEBOOK_ADMIN": "",
     "BOTNAME": "PhoenixV3-unofficial",
     "PREFIX": "$",
-    "BOXADMIN": "8723775060977679",
+    "BOXADMIN": "", //id box muốn bot gửi thông báo duyet v.v
     "ADMINBOT": [],
-    "NDH": [
-        "100027248830437",
-        "100074278195157",
-        "100093678746818",
-        "502275138"
+    "NDH": [ //uid của admin bot gắn đây
+        "",
+        "",
+        "",
+        ""
     ],
     "version": "3.0.0",
     "menu": {
@@ -50,8 +50,8 @@
     "upt": {
         "SHOW_IP": "",
         "SHOW_ADMIN_INFO": true,
-        "ADMIN_NAME": "Phoenix",
-        "ADMIN_CONTACT": "m.me/Phoenix.2417",
+        "ADMIN_NAME": "",
+        "ADMIN_CONTACT": "",
         "CUSTOM_LOGO": "",
         "MAX_COMMANDS_SHOW": 5
     },
