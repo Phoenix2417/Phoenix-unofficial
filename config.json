@@ -1,0 +1,63 @@
+{
+    "iconUnsend": {
+        "status": true,
+        "icon": "🦔"
+    },
+    "FCAOption": {
+        "forceLogin": true,
+        "listenEvents": true,
+        "updatePresence": true,
+        "listenTyping": true,
+        "logLevel": "error",
+        "selfListen": true,
+        "selfListenEvent": true,
+        "autoMarkDelivery": false,
+        "autoReconnect": true
+    },
+    "language": "vi",
+    "DeveloperMode": false,
+    "autoCreateDB": true,
+    "allowInbox": true,
+    "commandDisabled": [
+        "nhatvatao.js",
+        "nhanvatao.js"
+    ],
+    "eventDisabled": [],
+    "EMAIL": "",
+    "PASSWORD": "",
+    "OTPKEY": "",
+    "FACEBOOK_ADMIN": "",
+    "BOTNAME": "PhoenixV3-unofficial",
+    "PREFIX": "$",
+    "BOXADMIN": "8723775060977679",
+    "ADMINBOT": [],
+    "NDH": [
+        "100027248830437",
+        "100074278195157",
+        "100093678746818",
+        "502275138"
+    ],
+    "version": "3.0.0",
+    "menu": {
+        "autoUnsend": {
+            "status": true,
+            "timeOut": 60
+        }
+    },
+    "work": {
+        "cooldownTime": 1200000
+    },
+    "upt": {
+        "SHOW_IP": "",
+        "SHOW_ADMIN_INFO": true,
+        "ADMIN_NAME": "Phoenix",
+        "ADMIN_CONTACT": "m.me/Phoenix.2417",
+        "CUSTOM_LOGO": "",
+        "MAX_COMMANDS_SHOW": 5
+    },
+    "sing": {
+        "YOUTUBE_API": "AIzaSyByBLcPrhQyiFGIi9ITpbI7EGXQPpBxdQs",
+        "SOUNDCLOUD_API": "M4TSyS6eV0AcMynXkA3qQASGcOFQTWub"
+    },
+    "char": {}
+}
