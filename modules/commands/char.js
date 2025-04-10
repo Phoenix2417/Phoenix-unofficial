@@ -66,6 +66,45 @@ module.exports.handleEvent = async function({ api, event }) {
     }
 };
 
+// Thêm hàm xóa nhân vật - Đặt hàm này TRƯỚC hàm module.exports.run
+function deleteCharacter(name) {
+    const dataDir = getDataPath();
+    const characterFile = join(dataDir, `${name}.json`);
+    
+    if (!existsSync(characterFile)) {
+        return false;
+    }
+    
+    try {
+        const { unlinkSync } = require('fs');
+        unlinkSync(characterFile);
+        return true;
+    } catch (error) {
+        console.error(`[Character Chat] Error deleting character "${name}":`, error);
+        return false;
+    }
+}
+
+// Hàm xử lý lệnh xóa nhân vật - Đặt hàm này TRƯỚC hàm module.exports.run
+function handleDeleteCommand(api, threadID, messageID, args) {
+    const name = args[1];
+    if (!name) {
+        return api.sendMessage("❌ Vui lòng nhập tên nhân vật cần xóa.", threadID, messageID);
+    }
+    
+    // Kiểm tra xem nhân vật có đang hoạt động không
+    if (activeCharacters[threadID] === name) {
+        delete activeCharacters[threadID];
+        delete conversationContexts[threadID];
+    }
+    
+    if (deleteCharacter(name)) {
+        return api.sendMessage(`✅ Đã xóa nhân vật "${name}" thành công.`, threadID, messageID);
+    } else {
+        return api.sendMessage(`❌ Nhân vật "${name}" không tồn tại hoặc không thể xóa.`, threadID, messageID);
+    }
+}
+
 // Main command handler
 module.exports.run = async function({ api, event, args }) {
     const { threadID, messageID } = event;
@@ -86,14 +125,16 @@ module.exports.run = async function({ api, event, args }) {
                 return handleSelectCommand(api, threadID, messageID, args);
             case "stop":
                 return handleStopCommand(api, threadID, messageID);
-            case "-p":
+            case "p":
                 return handlePersonalityCommand(api, threadID, messageID, args);
-            case "-adr":
+            case "adr":
                 return handleAddResponseCommand(api, threadID, messageID, args);
-            case "-adm":
+            case "adm":
                 return handleAddMemoryCommand(api, threadID, messageID, args);
             case "train":
                 return handleTrainCommand(api, threadID, messageID, args);
+            case "del":
+                return handleDeleteCommand(api, threadID, messageID, args);    
             default:
                 return api.sendMessage("❌ Lệnh không hợp lệ.", threadID, messageID);
         }
@@ -110,10 +151,11 @@ async function showHelp(api, threadID, messageID, prefix) {
         + `${prefix}char -c [tên] - Tạo nhân vật mới\n`
         + `${prefix}char select [tên] - Chọn nhân vật để trò chuyện\n`
         + `${prefix}char stop - Dừng trò chuyện với nhân vật\n`
-        + `${prefix}char -p [tên] [tính cách] - Cập nhật tính cách\n`
-        + `${prefix}char -adr [tên] [từ khóa] [phản hồi] - Thêm phản hồi\n`
-        + `${prefix}char -adm [tên] [ký ức] - Thêm ký ức\n`
+        + `${prefix}char p [tên] [tính cách] - Cập nhật tính cách\n`
+        + `${prefix}char adr [tên] [từ khóa] [phản hồi] - Thêm phản hồi\n`
+        + `${prefix}char adm [tên] [ký ức] - Thêm ký ức\n`
         + `${prefix}char train [tên] - Huấn luyện nhân vật với Gemini AI`;
+        + `${prefix}char del [tên] - Xóa nhân vật`;
     
     return api.sendMessage(helpMessage, threadID, messageID);
 }
@@ -130,6 +172,23 @@ function getCharacters() {
     } catch (error) {
         console.error('[Character Chat] Error getting character list:', error);
         return [];
+    }
+}
+function deleteCharacter(name) {
+    const dataDir = getDataPath();
+    const characterFile = join(dataDir, `${name}.json`);
+    
+    if (!existsSync(characterFile)) {
+        return false;
+    }
+    
+    try {
+        const { unlinkSync } = require('fs');
+        unlinkSync(characterFile);
+        return true;
+    } catch (error) {
+        console.error(`[Character Chat] Error deleting character "${name}":`, error);
+        return false;
     }
 }
 
