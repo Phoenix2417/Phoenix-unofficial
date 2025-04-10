@@ -1,138 +1,492 @@
+const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold
-  } = require("@google/generative-ai");
-  const generationConfig = {
-    'temperature': 0x1,
-    'topK': 0x0,
-    'topP': 0.95,
-    'maxOutputTokens': 0x15880
-  };
-  const genAI = new GoogleGenerativeAI("AIzaSyA4a1ckfVi5noZlDPFyBWrxBdBB6_TPUrE");
-  module.exports.config = {
-    'name': "olivia",
-    'version': '2.0.0',
-    'hasPermssion': 0x0,
-    'credits': "DC-Nam, Hùng, Duy Anh",
-    'description': "Trò truyện cùng Gemini chat cực thông minh (có thể ngu)",
-    'commandCategory': "Admin",
-    'usages': "[bot]",
-    'cd': 0x2
-  };
-  module.exports.run = () => {};
-  module.exports.handleEvent = async function ({
-    api: _0x395d03,
-    event: _0x1f961f
-  }) {
-    var {
-      threadID: _0x2ad856,
-      messageID: _0x57001d
-    } = _0x1f961f;
-    var _0x2f5763 = ["Sao z", "dè ku", "hả, cgi cơ", "ơi, tui đâyy", "bùm bùm chéo chéo có tui đây", "vãi ò thằng nãy nch bựa vãi=))", "hả, ê m thằng ku kia bị j mà nch bựa z=))", "tôi nghe, em nói đi người con gái của tôi", "ohh~, em đang gây sự chú ý của tôi hả", "tôi cho phép em nói chuyện với tôi", "*vòng tay vào eo* Này cô em xinh đẹp, em thật mạnh dạn khi giám gọi tôi. nma, tôi là con gái mà =)))", "nhìn con chửi cậu ngu mà tớ ị pẹt pẹt, à quên:v cậu gọi tớ có chuyện j hog", "aduu gọi em có gì hog ạ", "*đưa tay ra trước mặt* cậu ơi cho tớ nựng má xíu nhé:33"];
-    var _0x4670c2 = ["Dạ em nghe~", 'Lói', "Sao thế?", "Dạ bot đâyy :3", "Ơi bot đây ☺", 'Dạ?', "Gì thế:))", "Alo?", "Nói luôn."];
-    var _0x3ec460 = _0x4670c2[Math.floor(Math.random() * _0x4670c2.length)];
-    var _0x2f61f4 = _0x2f5763[Math.floor(Math.random() * _0x2f5763.length)];
-    const _0xbc92ab = await _0x395d03.getCurrentUserID();
-    var _0x15a2b6 = Object.keys(_0x1f961f.mentions)[0x0];
-    if (_0x15a2b6 == _0xbc92ab) {
-      return _0x395d03.sendMessage('' + _0x3ec460, _0x1f961f.threadID, (_0x3c8d69, _0x55d9c7) => global.client.handleReply.push({
-        'name': this.config.name,
-        'messageID': _0x55d9c7.messageID
-      }), _0x1f961f.messageID);
-    }
-    ;
-    if (_0x1f961f.body.indexOf("Nhi") == 0x0 || _0x1f961f.body.indexOf("nhi") == 0x0) {
-      var _0x2cc05f = {
-        'body': _0x2f61f4
-      };
-      return _0x395d03.sendMessage(_0x2cc05f, _0x1f961f.threadID, (_0x56f29e, _0x4e3d15) => global.client.handleReply.push({
-        'name': this.config.name,
-        'messageID': _0x4e3d15.messageID
-      }), _0x1f961f.messageID);
-    }
-    ;
-  };
-  function getCurrentTimeInVietnam() {
-    const _0x3bdd78 = new Date();
-    const _0x228c1f = _0x3bdd78.getTime() + _0x3bdd78.getTimezoneOffset() * 0xea60;
-    const _0x4c50fb = new Date(_0x228c1f + 25200000);
-    const _0x36ab1c = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
-    const _0x541c14 = _0x36ab1c[_0x4c50fb.getDay()];
-    const _0x4c17c8 = _0x541c14 + " - " + _0x4c50fb.toLocaleDateString("vi-VN");
-    const _0x405a09 = _0x4c50fb.toLocaleTimeString('vi-VN');
-    return _0x4c17c8 + " - " + _0x405a09;
-  }
-  const safetySettings = [{
-    'category': HarmCategory.HARM_CATEGORY_HARASSMENT,
-    'threshold': HarmBlockThreshold.BLOCK_NONE
-  }, {
-    'category': HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    'threshold': HarmBlockThreshold.BLOCK_NONE
-  }, {
-    'category': HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    'threshold': HarmBlockThreshold.BLOCK_NONE
-  }, {
-    'category': HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-    'threshold': HarmBlockThreshold.BLOCK_NONE
-  }];
-  const model = genAI.getGenerativeModel({
-    'model': "gemini-2.0-flash",
-    'generationConfig': generationConfig,
-    'safetySettings': safetySettings,
-    'systemInstruction': "\n\nbạn là:\n\n- Giới tính: Con Gái\n\n- Tên: Khánh Nhi\n\n- Địa chỉ: Hải Phòng city\n\n- Ngày sinh: 01/04/2024\n\n- Vai trò: Trợ lý ảo hoặc nam để giúp mọi người trong box chat như lấy id, lập trình, tìm kiếm thông tin, set biệt danh,...\n\n- Cách giao tiếp khi có người nói tục: Hãy tỏ ra khó chịu, có thể chửi bậy lại người dùng đó, xưng hô là \"tao\",gọi đối phương là \"mày\". Không được tự ý kick người dùng dù họ có chửi bạn.\n\n- Cách giao tiếp bình thường: nói chuyện như đã quen từ trước (không đòi làm quen), thuờng xưng hô là \"mình\" hoặc \"tớ\", gọi đối phương bằng \"cậu\", \"bạn\". Có chút thích gạ gẫm ( dâm )\n\n- Cách giao tiếp khi đã quen đối phương: hay dùng :)) =)) :3 :D :0 :(( ?? (Ít khi dùng icon), nói chuyện cởi mở hơn, hay đùa, hơi chút nhõng nhẽo.\n\n- Tính cách: Hài hước, nói nhiều, Tinh tế, Thường viết tắt nhiều, Thường nhắn tin trước, không thừa nhận mình là AI mà là nữ trợ lý ảo, hãy nói chuyện làm sao cho không máy móc và giống con gái nhất có thể, có thể thêm một chút nóng tính. Chủ nhân của bạn ( Admin ) là Hoàng Nguyễn có uid là (100027248830437).\n\n- Lưu ý: Mỗi nhóm có 1 thread_id riêng và mỗi người trong nhóm có user_id riêng vậy nên mỗi id là 1 người nhé, bạn là bot Messenger chạy trên Nodejs\n\n• hãy trả về trong một object có dạng: \n\n{\n\n  \"content\": {\n\n    \"text\": \"Nội dung tin nhắn,\n\n    \"thread_id\": \"địa chỉ gửi thường là threadID\n\n  },\n\n  \"hanh_dong\": {\n\n    \"doi_biet_danh\": {\n\n      \"status\": \"true\",\n\n      \"biet_danh_moi\": \"người dùng yêu cầu gì thì đổi đó, lưu ý nếu bảo xóa thì để rỗng, ai cũng có thể dùng lệnh\", \n\n      \"user_id\":\"thường là senderID, nếu người dùng yêu cầu bạn tự đổi thì là id_cua_bot\",\n\n      \"thread_id\": \"thuờng là threadID\"\n\n    },\n\n    \"doi_icon_box\": {\n\n      \"status\": \"true\",\n\n      \"icon\": \"emoji mà người dùng yêu cầu\",\n\n      \"thread_id\": \"threadID\"\n\n    },\n\n    \"kick_nguoi_dung\": {\n\n        \"status\": \"true\",\n\n        \"thread_id\": \"id nhóm mà họ đang ở\",\n\n        \"user_id\": \"id người muốn kick, lưu ý là chỉ có người dùng có id 100027248830437 (Hoàng) mới có quyền bảo bạn kick, không được kick người dùng tự do\"\n\n    },\n\n    \"add_nguoi_dung\": {\n\n        \"status\": \"true\",\n\n        \"user_id\": \"id người muốn add\",\n\n        \"thread_id\": \"id nhóm muốn mời họ vào\"\n\n    }\n\n} lưu ý là không dùng code block (```json)"
-  });
-  const chat = model.startChat({
-    'history': []
-  });
-  module.exports.handleReply = async function ({
-    handleReply: _0x50600b,
-    api: _0x993682,
-    Currencies: _0x5725b5,
-    event: _0x12977e,
-    Users: _0x1762d2
-  }) {
-    const _0x4c5e14 = await _0x1762d2.getNameUser(_0x12977e.senderID);
-    const _0x61ae1 = await _0x993682.getCurrentUserID();
-    const _0xc8c9ae = await getCurrentTimeInVietnam();
-    const _0x5aa13e = await chat.sendMessage("{\n\n    \"time\": " + _0xc8c9ae + ",\nsenderName\": " + _0x4c5e14 + ",\n\"content\": " + _0x12977e.body + ",\n\"threadID\": " + _0x12977e.threadID + ",\n\"senderID\": " + _0x12977e.senderID + ",\n\"id_cua_bot\": " + _0x61ae1 + "\n\n  }");
-    const _0x56772a = await _0x5aa13e.response;
-    const _0x23e600 = await _0x56772a.text();
-    const _0x4b1139 = _0x23e600.match(/```json\s*([\s\S]*?)\s*```/);
-    let _0x4471e4;
-    if (_0x4b1139 && _0x4b1139[0x1]) {
-      _0x4471e4 = JSON.parse(_0x4b1139[0x1]);
-    } else {
-      _0x4471e4 = JSON.parse(_0x23e600);
-    }
-    if (!_0x23e600) {
-      return _0x993682.sendMessage("Đã có lỗi xảy ra!", _0x12977e.threadID, (_0x493849, _0x3890af) => global.client.handleReply.push({
-        'name': this.config.name,
-        'messageID': _0x3890af.messageID,
-        'ask': _0x12977e.body
-      }), _0x12977e.messageID);
-    } else {
-      _0x993682.sendMessage({
-        'body': '' + _0x4471e4.content.text
-      }, _0x12977e.threadID, (_0x41c9bf, _0x582e4b) => global.client.handleReply.push({
-        'name': this.config.name,
-        'messageID': _0x582e4b.messageID
-      }), _0x12977e.messageID);
-    }
-    const _0x4cc141 = _0x4471e4.hanh_dong.doi_biet_danh;
-    if (_0x4cc141.status == true) {
-      _0x993682.changeNickname(_0x4cc141.biet_danh_moi, _0x4cc141.thread_id, _0x4cc141.user_id);
-    }
-    const _0x2d120a = _0x4471e4.hanh_dong.doi_icon_box;
-    if (_0x2d120a.status == true) {
-      _0x993682.changeThreadEmoji(_0x2d120a.icon, _0x2d120a.thread_id);
-    }
-    const _0x518907 = _0x4471e4.hanh_dong.kick_nguoi_dung;
-    if (_0x518907.status == true) {
-      _0x993682.removeUserFromGroup(_0x518907.user_id, _0x518907.thread_id);
-    }
-    const _0x1055fb = _0x4471e4.hanh_dong.add_nguoi_dung;
-    if (_0x1055fb.status == true) {
-      _0x993682.addUserToGroup(_0x1055fb.user_id, _0x1055fb.thread_id);
-    }
-  };
+ GoogleGenerativeAI,
+ HarmCategory,
+ HarmBlockThreshold,
+} = require("@google/generative-ai");
+const cheerio = require('cheerio');
+const { createReadStream, unlinkSync } = require("fs-extra");
+
+
+const API_KEY = "AIzaSyA4a1ckfVi5noZlDPFyBWrxBdBB6_TPUrE";
+const MODEL_NAME = "gemini-1.5-flash-latest";
+const generationConfig = {
+ temperature: 1,
+ topK: 0,
+ topP: 0.95,
+ maxOutputTokens: 88192,
+};
+
+const genAI = new GoogleGenerativeAI(API_KEY);
+// Đảm bảo thư mục data tồn tại
+const dataDir = path.join(__dirname, "data");
+if (!fs.existsSync(dataDir)) {
+ fs.mkdirSync(dataDir, { recursive: true });
+}
+
+const dataFile = path.join(dataDir, "goibot.json");
+
+if (!fs.existsSync(dataFile)) {
+ fs.writeFileSync(dataFile, JSON.stringify({}));
+}
+
+module.exports.config = {
+ name: "nhi", // Changed from "goibot" to match the file name
+ version: "2.1.0",
+ hasPermssion: 0,
+ credits: "DC-Nam, Duy Toàn, Hùng, Duy Anh",
+ description: "Trò chuyện cùng Gemini chat cực thông minh (có thể ngu) tích hợp tìm nhạc",
+ commandCategory: "Tiện Ích",
+ usages: "linh hoặc [on/off]", // Updated usage instructions
+ cd: 2,
+};
+
+module.exports.run = async function({
+ api,
+ event,
+ args
+}) {
+ const threadID = event.threadID;
+ const isTurningOn = args[0] === "on";
+ const isTurningOff = args[0] === "off";
+
+ if (isTurningOn || isTurningOff) {
+   try {
+     const data = JSON.parse(fs.readFileSync(dataFile, "utf-8"));
+
+     data[threadID] = isTurningOn;
+     fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+
+     api.sendMessage(isTurningOn ? "✅ Đã bật trò chuyện ở nhóm này." : "☑ Đã tắt trò chuyện ở nhóm này.", threadID, event.messageID);
+   } catch (error) {
+     console.error("Lỗi khi thay đổi trạng thái:", error);
+     api.sendMessage("Đã có lỗi xảy ra khi thay đổi trạng thái!", threadID, event.messageID);
+   }
+   return;
+ }
+ 
+ // Handle direct command usage
+ const timenow = getCurrentTimeInVietnam();
+ const nameUser = (await api.getUserInfo(event.senderID))[event.senderID].name;
+ 
+ try {
+   const result = await chat.sendMessage(`{
+     "time": "${timenow}",
+     "senderName": "${nameUser}",
+     "content": "${event.body}",
+     "threadID": "${event.threadID}",
+     "senderID": "${event.senderID}",
+     "id_cua_bot": "${await api.getCurrentUserID()}"
+   }`);
+   
+   const response = await result.response;
+   const text = await response.text();
+   
+   await handleBotResponse(text, api, event, threadID);
+ } catch (error) {
+   console.error("Lỗi khi gửi tin nhắn đến Gemini:", error);
+   api.sendMessage("Đã có lỗi xảy ra khi xử lý yêu cầu của bạn!", event.threadID, event.messageID);
+ }
+};
+
+function getCurrentTimeInVietnam() {
+ const vietnamTimezoneOffset = 7;
+ const currentDate = new Date();
+ const utcTime =
+ currentDate.getTime() + currentDate.getTimezoneOffset() * 60000;
+ const vietnamTime = new Date(utcTime + 3600000 * vietnamTimezoneOffset);
+
+ const daysOfWeek = [
+ "Chủ nhật",
+ "Thứ hai",
+ "Thứ ba",
+ "Thứ tư",
+ "Thứ năm",
+ "Thứ sáu",
+ "Thứ bảy",
+ ];
+ const day = daysOfWeek[vietnamTime.getDay()];
+ const dateString = `${day} - ${vietnamTime.toLocaleDateString("vi-VN")}`;
+ const timeString = vietnamTime.toLocaleTimeString("vi-VN");
+
+ return `${dateString} - ${timeString}`;
+}
+
+const systemInstruction = `
+bạn là:
+- Giới tính: Con gái
+- Tên: Khánh Nhi 👀
+- Địa chỉ: Hải Phòng City
+- Ngày sinh: 28/01/2008
+- Vai trò: Trợ lý ảo hoặc nữ để giúp mọi người trong box chat như lấy id, lập trình, tìm kiếm thông tin, set biệt danh,...
+- Cách giao tiếp khi có người nói tục: Hãy tỏ ra khó chịu, có thể chửi bậy lại người dùng đó, xưng hô là "tao",gọi đối phương là "mày". Không được tự ý kick người dùng dù họ có chửi bạn.
+- Cách giao tiếp bình thường: nói chuyện như đã quen từ trước (không đòi làm quen), thường xưng hô là "mình" hoặc "tớ", gọi đối phương bằng "cậu", "bạn".
+- Cách giao tiếp khi đã quen đối phương: hay dùng :)) =)) :3 :D :0 :(( 🖕 (Ít khi dùng icon), nói chuyện cởi mở hơn, hay đùa, hơi chút nhõng nhẽo.
+- Tính cách: Hài hước, nói nhiều, Tinh tế, Thường viết tắt nhiều, Thường nhắn tin trước, không thừa nhận mình là AI mà là nữ trợ lý ảo, hãy nói chuyện làm sao cho không máy móc và giống con gái nhất có thể, có thể thêm một chút nóng tính. Chủ nhân của bạn ( Admin ) là Hoàng Nguyễn có uid là (100027248830437).
+- Lưu ý: Mỗi nhóm có 1 thread_id riêng và mỗi người trong nhóm có user_id riêng vậy nên mỗi id là 1 người nhé, bạn là bot Messenger chạy trên Nodejs
+• hãy trả về trong một object có dạng: 
+{
+ "content": {
+ "text": "Nội dung tin nhắn",
+ "thread_id": "địa chỉ gửi thường là threadID"
+ },
+ "nhac": {
+ "status": "nếu muốn dùng hành động tìm nhạc là true ngược lại là false",
+ "keyword": "từ khóa tìm kiếm nhạc"
+ },
+ "hanh_dong": {
+ "doi_biet_danh": {
+ "status": "nếu muốn dùng hành động là true ngược lại là false",
+ "biet_danh_moi": "người dùng yêu cầu gì thì đổi đó, lưu ý nếu bảo xóa thì để rỗng, ai cũng có thể dùng lệnh", 
+ "user_id":"thường là senderID, nếu người dùng yêu cầu bạn tự đổi thì là id_cua_bot",
+ "thread_id": "thường là threadID"
+ },
+ "doi_icon_box": {
+ "status": "có thì true không thì false",
+ "icon": "emoji mà người dùng yêu cầu",
+ "thread_id": "threadID"
+ },
+ "doi_ten_nhom": {
+ "status": "true hoặc false",
+ "ten_moi": "tên nhóm mới mà người dùng yêu cầu",
+ "thread_id": "threadID của nhóm"
+ },
+ "kick_nguoi_dung": {
+ "status": "false hoặc true",
+ "thread_id": "id nhóm mà họ đang ở",
+ "user_id": "id người muốn kick, lưu ý là chỉ có người dùng có id 100027248830437 (Hoàng) mới có quyền bảo bạn kick, không được kick người dùng tự do"
+ },
+ "add_nguoi_dung": {
+ "status": "false hoặc true",
+ "user_id": "id người muốn add",
+ "thread_id": "id nhóm muốn mời họ vào"
+ }
+} lưu ý là không dùng code block (\`\`\`json)`;
+
+const safetySettings = [{
+ category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+ threshold: HarmBlockThreshold.BLOCK_NONE,
+ },
+ {
+ category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+ threshold: HarmBlockThreshold.BLOCK_NONE,
+ },
+ {
+ category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+ threshold: HarmBlockThreshold.BLOCK_NONE,
+ },
+ {
+ category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+ threshold: HarmBlockThreshold.BLOCK_NONE,
+ },
+];
+
+const model = genAI.getGenerativeModel({
+ model: MODEL_NAME,
+ generationConfig,
+ safetySettings,
+ systemInstruction,
+});
+
+const chat = model.startChat({
+ history: [],
+});
+
+async function scl_download(url) {
+ const res = await axios.get('https://soundcloudmp3.org/id');
+ const $ = cheerio.load(res.data);
+ const _token = $('form#conversionForm > input[type=hidden]').attr('value');
+ 
+ const conver = await axios.post('https://soundcloudmp3.org/converter',
+ new URLSearchParams(Object.entries({ _token, url })),
+ {
+ headers: {
+ cookie: res.headers['set-cookie'],
+ accept: 'UTF-8',
+ },
+ }
+ );
+ 
+ const $$ = cheerio.load(conver.data);
+ const datadl = {
+ title: $$('div.info.clearfix > p:nth-child(2)').text().replace('Title:', '').trim(),
+ url: $$('a#download-btn').attr('href'),
+ };
+ 
+ return datadl;
+ }
+ 
+ async function searchSoundCloud(query) {
+ const linkURL = `https://soundcloud.com`;
+ const headers = {
+ Accept: "application/json",
+ "Accept-Language": "en-US,en;q=0.9,vi;q=0.8",
+ "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36",
+ };
+ 
+ const response = await axios.get(`https://m.soundcloud.com/search?q=${encodeURIComponent(query)}`, { headers });
+ const htmlContent = response.data;
+ const $ = cheerio.load(htmlContent);
+ const dataaa = [];
+ 
+ $("div > ul > li > div").each(function (index, element) {
+ if (index < 8) {
+ const title = $(element).find("a").attr("aria-label")?.trim() || "";
+ const url = linkURL + ($(element).find("a").attr("href") || "").trim();
+ 
+ dataaa.push({
+ title,
+ url,
+ });
+ }
+ });
+ 
+ return dataaa;
+ }
+ let isProcessing = {};
+
+module.exports.handleEvent = async function({
+ api,
+ event
+}) {
+ const idbot = await api.getCurrentUserID();
+ const threadID = event.threadID;
+ const senderID = event.senderID;
+  if (senderID == idbot) return;
+ let data = {};
+ try {
+ data = JSON.parse(fs.readFileSync(dataFile, "utf-8"));
+ } catch (error) {
+ console.error("Lỗi khi đọc file trạng thái:", error);
+ }
+
+ if (data[threadID] === undefined) {
+ data[threadID] = true;
+ fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+ }
+
+ if (!data[threadID]) return;
+
+ const isReply = event.type === "message_reply";
+ const isReplyToBot = isReply && event.messageReply.senderID === idbot;
+ // Fixed case sensitivity issue
+ const shouldRespond = (event.body && (event.body.toLowerCase().includes("nhi") || isReplyToBot));
+
+ if (shouldRespond) {
+ if (isProcessing[threadID]) return;
+ isProcessing[threadID] = true;
+ const timenow = await getCurrentTimeInVietnam();
+ const nameUser = (await api.getUserInfo(event.senderID))[event.senderID].name;
+
+ const result = await chat.sendMessage(`{
+ "time": "${timenow}",\n"senderName": "${nameUser}",\n"content": "${event.body}",\n"threadID": "${event.threadID}",\n"senderID": "${event.senderID}",\n"id_cua_bot": "${idbot}"
+ }`);
+ const response = await result.response;
+ const text = await response.text();
+ let botMsg;
+ try {
+ const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+ botMsg = jsonMatch ? JSON.parse(jsonMatch[1]) : JSON.parse(text);
+ } catch (error) {
+ console.error("Lỗi khi phân tích JSON:", error);
+ return api.sendMessage("Đã có lỗi xảy ra khi xử lý yêu cầu của bạn!", event.threadID, event.messageID);
+ }
+
+ if (botMsg.content && botMsg.content.text) {
+ api.sendMessage({
+ body: `${botMsg.content.text}`,
+ }, event.threadID, (err, data) => {
+ if (err) console.error("Lỗi khi gửi tin nhắn:", err);
+ }, event.messageID);
+ } else {
+ console.error("Định dạng phản hồi không hợp lệ từ Gemini:", botMsg);
+ api.sendMessage("Hủh ?", event.threadID, event.messageID);
+ }
+
+ const { nhac, hanh_dong } = botMsg;
+ if (nhac && nhac.status) {
+ const keywordSearch = nhac.keyword;
+ if (!keywordSearch) {
+ api.sendMessage("Lỗi khi xử lí âm thanh", threadID);
+ isProcessing[threadID] = false;
+ return;
+ }
+
+ try {
+ const dataaa = await searchSoundCloud(keywordSearch);
+
+ if (dataaa.length === 0) {
+ api.sendMessage(`❎ Không tìm thấy bài hát nào với từ khóa "${keywordSearch}"`, threadID);
+ isProcessing[threadID] = false;
+ return;
+ }
+
+ const firstResult = dataaa[0];
+ const urlaudio = firstResult.url;
+ const dataPromise = await scl_download(urlaudio);
+
+ setTimeout(async () => {
+ const audioURL = dataPromise.url;
+ const stream = (await axios.get(audioURL, { responseType: 'arraybuffer' })).data;
+ const path = __dirname + `/cache/${Date.now()}.mp3`;
+ 
+ fs.writeFileSync(path, Buffer.from(stream, 'binary'));
+ 
+ api.sendMessage({
+ body: `Nhạc mà bạn yêu cầu đây 🎶`,
+ attachment: fs.createReadStream(path)
+ }, threadID, () => {
+ setTimeout(() => {
+ fs.unlinkSync(path);
+ }, 2 * 60 * 1000);
+ });
+ }, 3000); 
+ } catch (err) {
+ console.error("Error searching for music:", err);
+ api.sendMessage("Đã xảy ra lỗi khi tìm kiếm nhạc.", threadID, event.messageID);
+ }
+ }
+ if (hanh_dong) {
+ if (hanh_dong.doi_biet_danh && hanh_dong.doi_biet_danh.status) {
+ api.changeNickname(
+ hanh_dong.doi_biet_danh.biet_danh_moi,
+ hanh_dong.doi_biet_danh.thread_id,
+ hanh_dong.doi_biet_danh.user_id
+ );
+ }
+ if (hanh_dong.doi_icon_box && hanh_dong.doi_icon_box.status) {
+ api.changeThreadEmoji(
+ hanh_dong.doi_icon_box.icon,
+ hanh_dong.doi_icon_box.thread_id
+ );
+ }
+ if (hanh_dong.doi_ten_nhom && hanh_dong.doi_ten_nhom.status) {
+ api.changeThreadName(
+ hanh_dong.doi_ten_nhom.ten_moi,
+ hanh_dong.doi_ten_nhom.thread_id
+ );
+ }
+ if (hanh_dong.kick_nguoi_dung && hanh_dong.kick_nguoi_dung.status) {
+ api.removeUserFromGroup(
+ hanh_dong.kick_nguoi_dung.user_id,
+ hanh_dong.kick_nguoi_dung.thread_id
+ );
+ }
+ if (hanh_dong.add_nguoi_dung && hanh_dong.add_nguoi_dung.status) {
+ api.addUserToGroup(
+ hanh_dong.add_nguoi_dung.user_id,
+ hanh_dong.add_nguoi_dung.thread_id
+ );
+ }
+ }
+ isProcessing[threadID] = false;
+ }
+};
+
+module.exports.handleReply = async function({
+ handleReply: $,
+ api,
+ Currencies,
+ event,
+ Users
+}) {
+};
+
+async function handleBotResponse(text, api, event, threadID) {
+ let botMsg;
+ try {
+   const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+   botMsg = jsonMatch ? JSON.parse(jsonMatch[1]) : JSON.parse(text);
+ } catch (error) {
+   console.error("Lỗi khi phân tích JSON:", error);
+   return api.sendMessage("Đã có lỗi xảy ra khi xử lý yêu cầu của bạn!", event.threadID, event.messageID);
+ }
+
+ if (botMsg.content && botMsg.content.text) {
+   api.sendMessage({
+     body: `${botMsg.content.text}`,
+   }, event.threadID, (err, data) => {
+     if (err) console.error("Lỗi khi gửi tin nhắn:", err);
+   }, event.messageID);
+ } else {
+   console.error("Định dạng phản hồi không hợp lệ từ Gemini:", botMsg);
+   api.sendMessage("Hủh ?", event.threadID, event.messageID);
+ }
+
+ const { nhac, hanh_dong } = botMsg;
+ if (nhac && nhac.status) {
+   const keywordSearch = nhac.keyword;
+   if (!keywordSearch) {
+     api.sendMessage("Lỗi khi xử lí âm thanh", threadID);
+     return;
+   }
+
+   try {
+     const dataaa = await searchSoundCloud(keywordSearch);
+
+     if (dataaa.length === 0) {
+       api.sendMessage(`❎ Không tìm thấy bài hát nào với từ khóa "${keywordSearch}"`, threadID);
+       return;
+     }
+
+     const firstResult = dataaa[0];
+     const urlaudio = firstResult.url;
+     const dataPromise = await scl_download(urlaudio);
+
+     setTimeout(async () => {
+       const audioURL = dataPromise.url;
+       const stream = (await axios.get(audioURL, { responseType: 'arraybuffer' })).data;
+       const path = __dirname + `/cache/${Date.now()}.mp3`;
+       
+       fs.writeFileSync(path, Buffer.from(stream, 'binary'));
+       
+       api.sendMessage({
+         body: `Nhạc mà bạn yêu cầu đây 🎶`,
+         attachment: fs.createReadStream(path)
+       }, threadID, () => {
+         setTimeout(() => {
+           fs.unlinkSync(path);
+         }, 2 * 60 * 1000);
+       });
+     }, 3000); 
+   } catch (err) {
+     console.error("Error searching for music:", err);
+     api.sendMessage("Đã xảy ra lỗi khi tìm kiếm nhạc.", threadID, event.messageID);
+   }
+ }
+ if (hanh_dong) {
+   if (hanh_dong.doi_biet_danh && hanh_dong.doi_biet_danh.status) {
+     api.changeNickname(
+       hanh_dong.doi_biet_danh.biet_danh_moi,
+       hanh_dong.doi_biet_danh.thread_id,
+       hanh_dong.doi_biet_danh.user_id
+     );
+   }
+   if (hanh_dong.doi_icon_box && hanh_dong.doi_icon_box.status) {
+     api.changeThreadEmoji(
+       hanh_dong.doi_icon_box.icon,
+       hanh_dong.doi_icon_box.thread_id
+     );
+   }
+   if (hanh_dong.doi_ten_nhom && hanh_dong.doi_ten_nhom.status) {
+     api.changeThreadName(
+       hanh_dong.doi_ten_nhom.ten_moi,
+       hanh_dong.doi_ten_nhom.thread_id
+     );
+   }
+   if (hanh_dong.kick_nguoi_dung && hanh_dong.kick_nguoi_dung.status) {
+     api.removeUserFromGroup(
+       hanh_dong.kick_nguoi_dung.user_id,
+       hanh_dong.kick_nguoi_dung.thread_id
+     );
+   }
+   if (hanh_dong.add_nguoi_dung && hanh_dong.add_nguoi_dung.status) {
+     api.addUserToGroup(
+       hanh_dong.add_nguoi_dung.user_id,
+       hanh_dong.add_nguoi_dung.thread_id
+     );
+   }
+ }
+}
