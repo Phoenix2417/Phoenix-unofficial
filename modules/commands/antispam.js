@@ -2,7 +2,7 @@ module.exports.config = {
     name: "antispam",
     version: "1.1.0",
     hasPermssion: 1,
-    credits: "Original by YourName - Modified for Mirai by Claude",
+    credits: "Original by Hoàng Nguyễn - Modified for Mirai by Claude",
     description: "Hệ thống chống spam tin nhắn nâng cao",
     commandCategory: "system",
     usages: "[on/off/set/exempt/status]",
@@ -17,7 +17,7 @@ const path = require('path');
 class AntiSpamManager {
     constructor() {
         this.userDataMap = new Map();
-        this.configPath = path.join(__dirname, '../includes/antispam_config.json');
+        this.configPath = path.join(__dirname, './modules/commands/data/antispam_config.json');
         this.defaultConfig = {
             enabled: true,
             threshold: 5,
