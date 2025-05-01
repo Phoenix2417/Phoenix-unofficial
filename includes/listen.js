@@ -16,6 +16,9 @@ const Currencies = require("./controllers/currencies")({
 models
 });
 const logger = require("../utils/log.js");
+// Import the rent module to use checkRent function
+const rentModule = require('./commands/rent');
+
 (async () => {
 try {
 logger.loader("Tiến hành tải dữ liệu người dùng và nhóm");
@@ -90,6 +93,7 @@ return {
 };
 }, {});
 return async function(event) {
+// Approve threads functionality
 const a = path.join(__dirname, '/../utils/data/approvedThreads.json');
 const b = path.join(__dirname, '/../utils/data/pendingThreads.json');
 if (!fs.existsSync(a)) {
@@ -102,8 +106,41 @@ const c = JSON.parse(fs.readFileSync(a, 'utf-8'));
 const d = global.config.ADMINBOT;
 const e = global.config.NDH;
 const f = global.config.BOXADMIN;
-let g = await api.getThreadInfo(event.threadID);
-let h = g.threadName;
+
+// ===== RENT CHECK CODE START =====
+// Always check if thread has rented the bot (except for admin users)
+if (!d.includes(event.senderID) && !e.includes(event.senderID)) {
+  // Check if thread has rented the bot
+  const rentStatus = rentModule.checkRent(event.threadID);
+  
+  // If not rented or expired, only allow specific commands like "rent" or "duyetbox"
+  if (!rentStatus) {
+    // Get thread prefix for command checking
+    const threadData = (await Threads.getData(String(event.threadID))).data || {};
+    const threadPrefix = threadData.hasOwnProperty('PREFIX') ? threadData.PREFIX : global.config.PREFIX;
+    
+    // Allow only rent-related keywords and some necessary commands
+    const allowedCommands = ['rent', 'duyetbox'];
+    
+    // If this is a command (starts with prefix)
+    if (event.body && event.body.startsWith(threadPrefix)) {
+      const commandText = event.body.slice(threadPrefix.length).trim();
+      const commandName = commandText.split(/\s+/)[0].toLowerCase();
+      
+      // Block all commands except allowed ones
+      if (!allowedCommands.includes(commandName)) {
+        return api.sendMessage(
+          `❌ Nhóm của bạn chưa thuê bot hoặc đã hết hạn thuê.\nVui lòng sử dụng ${threadPrefix}rent để biết thêm thông tin thuê bot.`, 
+          event.threadID,
+          event.messageID
+        );
+      }
+    }
+  }
+}
+// ===== RENT CHECK CODE END =====
+
+// Original approval check logic
 if (!c.includes(event.threadID) && !d.includes(event.senderID) && !e.includes(event.senderID)) {
 const i = (await Threads.getData(String(event.threadID))).data || {};
 const j = i.hasOwnProperty('PREFIX') ? i.PREFIX : global.config.PREFIX;
