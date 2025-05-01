@@ -1,151 +1,202 @@
 module.exports.config = {
-    name: 'rent',
-    version: '1.3.7',
-    hasPermssion: 2,
-    credits: 'DC-Nam & DongDev source lại',
-    description: 'thuê bot',
-    commandCategory: 'Admin',
-    usages: '[]',
-    cooldowns: 5,
-    prefix: false,
- };
- 
- let fs = require('fs');
- const moment = require('moment-timezone');
- if (!fs.existsSync(__dirname + '/data')) 
-    fs.mkdirSync(__dirname + '/data');
- let path = __dirname + '/data/thuebot.json';
- let data = [];
- let save = () => fs.writeFileSync(path, JSON.stringify(data));
- if (!fs.existsSync(path)) save();
- else data = require(path);
- 
- let form_mm_dd_yyyy = (input = '', split = input.split('/')) => `${split[1]}/${split[0]}/${split[2]}`;
- let invalid_date = date => /^Invalid Date$/.test(new Date(date));
- 
- exports.run = function (o) {
-    let send = (msg, callback) => o.api.sendMessage(msg, o.event.threadID, callback, o.event.messageID);
-    if (!["100027248830437"].includes(o.event.senderID)) return send(`⚠️ Chỉ Admin chính mới có thể sử dụng!`);
- 
-    switch (o.args[0]) {
-       case 'add': {
-          if (!o.args[1]) return send(`⚠️ Thêm người thuê bot vào dữ liệu:\n - rent add + ngày hết hạn\n - rent add + id người thuê + ngày hết hạn\n - rent add id nhóm + id người thuê + ngày hết hạn\n⚠️ Lưu ý: định dạng ngày là DD/MM/YYYY`);
-          let userId = o.event.senderID;
-          if (o.event.type === "message_reply") {
-             userId = o.event.messageReply.senderID;
-          } else if (Object.keys(o.event.mentions).length > 0) {
-             userId = Object.keys(o.event.mentions)[0];
-          }
-          let t_id = o.event.threadID;
-          let id = userId;
-          let time_start = moment.tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY');
-          let time_end = o.args[1];
-          if (o.args.length === 4 && !isNaN(o.args[1]) && !isNaN(o.args[2]) && o.args[3].match(/\d{1,2}\/\d{1,2}\/\d{4}/)) {
-             t_id = o.args[1];
-             id = o.args[2];
-             time_start = moment.tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY');
-             time_end = o.args[3];
- 
-          } else if (o.args.length === 3 && !isNaN(o.args[1]) && o.args[2].match(/\d{1,2}\/\d{1,2}\/\d{4}/)) {
-             t_id = o.event.threadID;
-             id = o.args[1];
-             time_start = moment.tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY');
-             time_end = o.args[2];
-          }
-          if (isNaN(id) || isNaN(t_id)) return send(`⚠️ ID Không Hợp Lệ!`);
-          if (invalid_date(form_mm_dd_yyyy(time_start)) || invalid_date(form_mm_dd_yyyy(time_end))) return send(`⚠️ Thời Gian Không Hợp Lệ!`);
-          data.push({
-             t_id,
-             id,
-             time_start,
-             time_end,
-          });
-          send(`☑️ Đã thêm người thuê bot vào danh sách!`);
-          break;
-       }
-       case 'list': {
-          send(`[ DANH SÁCH THUÊ BOT ]\n__________________\n${data.map(($, i) => `${i + 1}. ${global.data.userName.get($.id)}\nTình trạng: ${new Date(form_mm_dd_yyyy($.time_end)).getTime() >= Date.now() + 25200000 ? '✅' : '❎'}\nNhóm: ${(global.data.threadInfo.get($.t_id) || {}).threadName}`).join('\n__________________\n')}\n__________________\n⩺ Reply stt, del, out, giahan`, (err, res) => (res.name = exports.config.name,
-             res.event = o.event, res.data = data,
-             global.client.handleReply.push(res)));
-          break;
-       }
-       default:
-          send(`Dùng: ${global.config.PREFIX}rent add → Để thêm nhóm vào danh sách thuê bot\nDùng: ${global.config.PREFIX}rent list → Để xem danh sách thuê bot\n𝗛𝗗𝗦𝗗 → ${global.config.PREFIX}rent lệnh cần dùng.`);
-    }
- 
-    let currentHour = moment().tz('Asia/Ho_Chi_Minh').hour();
-    if (currentHour === 0) {
-       data.forEach((userInfo) => {
-          let time_end = userInfo.time_end;
-          let today = moment().tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY');
-          let daysRemaining = moment(time_end, 'DD/MM/YYYY').diff(moment(today, 'DD/MM/YYYY'), 'days');
- 
-          if (daysRemaining >= 0) {
-            
-             o.api.changeNickname(
-                `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME}||HSD ${daysRemaining} ngày ✅`,
-                userInfo.t_id,
-                o.api.getCurrentUserID()
-             );
-          } else {
-             o.api.changeNickname(
-                `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || Hết hạn ❌`,
-                userInfo.t_id,
-                o.api.getCurrentUserID()
-             );
-          }
-       });
-    }
- 
-    save();
- };
- 
- exports.handleReply = async function (o) {
-    let _ = o.handleReply;
-    let send = (msg, callback) => o.api.sendMessage(msg, o.event.threadID, callback, o.event.messageID);
-    if (o.event.senderID != _.event.senderID)
-       return;
-    if (isFinite(o.event.args[0])) {
-       let info = data[o.event.args[0] - 1];
-       if (!info) return send(`❎ STT không tồn tại!`);
-       return send(`[ THÔNG TIN NGƯỜI THUÊ BOT ]\n👤 Người thuê: ${global.data.userName.get(info.id)}\n🌐 Link Facebook: https://www.facebook.com/profile.php?id=${info.id}\n👥 Nhóm: ${(global.data.threadInfo.get(info.t_id) || {}).threadName}\n🔰 TID: ${info.t_id}\n📆 Ngày Thuê: ${info.time_start}\n⏳ Ngày hết Hạn: ${info.time_end} ${(() => {
-          let time_diff = new Date(form_mm_dd_yyyy(info.time_end)).getTime() - (Date.now() + 25200000);
-          let days = (time_diff / (1000 * 60 * 60 * 24)) << 0;
-          let hour = ((time_diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) << 0;
-          if (time_diff <= 0) {
-             return "Đã hết thời hạn thuê 🔐";
-          } else {
-             return ``;
-          }
-       })()}`);
-    } else if (o.event.args[0].toLowerCase() == 'del') {
-       o.event.args.slice(1).sort((a, b) => b - a).forEach($ => data.splice($ - 1, 1));
-       send(`☑️ Đã xóa thành công!`);
-    } else if (o.event.args[0].toLowerCase() == 'giahan') {
-       let STT = o.event.args[1];
-       let time_start = (require('moment-timezone')).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY');
-       let time_end = o.event.args[2];
-       if (invalid_date(form_mm_dd_yyyy(time_start)) || invalid_date(form_mm_dd_yyyy(time_end))) return send(`❎ Thời Gian Không Hợp Lệ!`);
-       if (!data[STT - 1]) return send(`❎ STT không tồn tại`);
-       let $ = data[STT - 1];
- 
-       let oldEndDate = new Date(form_mm_dd_yyyy($.time_end));
-       let newEndDate = new Date(form_mm_dd_yyyy(time_end));
-       let extendedDays = Math.ceil((newEndDate - oldEndDate) / (1000 * 60 * 60 * 24));
- 
-       $.time_start = time_start;
-       $.time_end = time_end;
-       send(`☑️ Đã gia hạn nhóm thành công!`);
- 
-       
-       o.api.sendMessage(
-          `[ Thông Báo ]\n\n📌 Nhóm của bạn đã được Admin gia hạn thêm ${extendedDays} ngày\n⏰ Sẽ kết thúc vào ngày: ${time_end}`,
-          $.t_id
-       );
-    } else if (o.event.args[0].toLowerCase() == 'out') {
-       for (let i of o.event.args.slice(1)) await o.api.removeUserFromGroup(o.api.getCurrentUserID(), data[i - 1].t_id);
-       send(`⚠️ Đã out nhóm theo yêu cầu`);
-    }
-    save();
- };
- 
+  name: "rent",
+  version: "1.0.0",
+  hasPermssion: 0, // Changed to 0 so normal users can use the info command
+  credits: "Hoàng Nguyễn",
+  description: "Quản lý các nhóm thuê bot",
+  commandCategory: "Admin",
+  usages: "[add/del/list/key/info] [threadID] [key] [ngày hết hạn (optional)]",
+  cooldowns: 5
+};
+
+module.exports.languages = {
+  "vi": {
+    "invalidCommand": "Lệnh không hợp lệ. Sử dụng: rent add/del/list/key/info [threadID] [key] [ngày hết hạn]",
+    "addSuccess": "Đã thêm nhóm %1 vào danh sách thuê bot với key %2 (hết hạn: %3)",
+    "addFailed": "Thêm nhóm thất bại, nhóm này đã tồn tại trong danh sách thuê",
+    "delSuccess": "Đã xóa nhóm %1 khỏi danh sách thuê bot",
+    "delFailed": "Xóa nhóm thất bại, nhóm không tồn tại trong danh sách thuê",
+    "listEmpty": "Không có nhóm nào đang thuê bot",
+    "listHeader": "⚡️ Danh sách các nhóm đang thuê bot ⚡️\n",
+    "listItem": "%1. ID: %2\n    Key: %3\n    Ngày hết hạn: %4\n",
+    "keyUpdated": "Đã cập nhật key cho nhóm %1 thành %2",
+    "keyUpdateFailed": "Cập nhật key thất bại, nhóm không tồn tại trong danh sách thuê",
+    "noPermission": "Bạn không có quyền sử dụng lệnh này",
+    "rentInfo": "📌 THÔNG TIN THUÊ BOT 📌\n\n💰 Giá thuê: 25.000đ\n⏱️ Thời hạn: 1 tháng (30 ngày)\n\n📞 Liên hệ Admin để thuê bot:\nFacebook: https://www.facebook.com/Phoenix.2417\n\n⚠️ Lưu ý: Bot sẽ chỉ hoạt động khi nhóm đã được thuê và còn thời hạn sử dụng."
+  },
+  "en": {
+    "invalidCommand": "Invalid command. Usage: rent add/del/list/key/info [threadID] [key] [expiryDate]",
+    "addSuccess": "Added group %1 to bot rental list with key %2 (expires: %3)",
+    "addFailed": "Failed to add group, this group already exists in the rental list",
+    "delSuccess": "Removed group %1 from bot rental list",
+    "delFailed": "Failed to remove group, group does not exist in the rental list",
+    "listEmpty": "No groups are currently renting the bot",
+    "listHeader": "⚡️ List of groups renting the bot ⚡️\n",
+    "listItem": "%1. ID: %2\n    Key: %3\n    Expiry date: %4\n",
+    "keyUpdated": "Updated key for group %1 to %2",
+    "keyUpdateFailed": "Failed to update key, group does not exist in the rental list",
+    "noPermission": "You do not have permission to use this command",
+    "rentInfo": "📌 BOT RENTAL INFORMATION 📌\n\n💰 Price: 25,000 VND\n⏱️ Duration: 1 month (30 days)\n\n📞 Contact Admin to rent bot:\nFacebook: https://www.facebook.com/Phoenix.2417\n\n⚠️ Note: The bot will only work when the group has been rented and the usage period is still valid."
+  }
+};
+
+module.exports.onLoad = async function () {
+  const { existsSync, writeFileSync } = require("fs-extra");
+  const rentPath = __dirname + "/cache/rent.json";
+  
+  if (!existsSync(rentPath)) {
+    const rentData = { groups: [] };
+    writeFileSync(rentPath, JSON.stringify(rentData, null, 4));
+  }
+};
+
+module.exports.run = async function ({ api, event, args, getText, permssion }) {
+  const command = args[0] ? args[0].toLowerCase() : "info"; // Default to info if no command provided
+  
+  // Info command - accessible to everyone
+  if (command === "info") {
+    return api.sendMessage(getText("rentInfo"), event.threadID, event.messageID);
+  }
+  
+  // All other commands require admin permission
+  if (permssion !== 2) return api.sendMessage(getText("noPermission"), event.threadID, event.messageID);
+  
+  const { readFileSync, writeFileSync } = require("fs-extra");
+  const rentPath = __dirname + "/cache/rent.json";
+  
+  let rentData = JSON.parse(readFileSync(rentPath, "utf-8"));
+  const today = new Date();
+  const defaultExpiryDate = new Date(today);
+  defaultExpiryDate.setMonth(today.getMonth() + 1); // Default is 1 month from current date
+  
+  const threadID = args[1];
+  
+  switch (command) {
+    case "add":
+      if (!threadID || !args[2]) {
+        return api.sendMessage(getText("invalidCommand"), event.threadID, event.messageID);
+      }
+      
+      const key = args[2];
+      let expiryDate = args[3] ? new Date(args[3]) : defaultExpiryDate;
+      
+      // Check if expiry date is valid, use default if not
+      if (isNaN(expiryDate.getTime())) {
+        expiryDate = defaultExpiryDate;
+      }
+      
+      // Check if group already exists
+      const existingGroup = rentData.groups.findIndex(group => group.threadID === threadID);
+      
+      if (existingGroup !== -1) {
+        return api.sendMessage(getText("addFailed"), event.threadID, event.messageID);
+      }
+      
+      // Add new group
+      rentData.groups.push({
+        threadID: threadID,
+        key: key,
+        expiryDate: expiryDate.toISOString()
+      });
+      
+      writeFileSync(rentPath, JSON.stringify(rentData, null, 4));
+      
+      return api.sendMessage(
+        getText("addSuccess", threadID, key, expiryDate.toLocaleDateString()),
+        event.threadID,
+        event.messageID
+      );
+    
+    case "del":
+      if (!threadID) {
+        return api.sendMessage(getText("invalidCommand"), event.threadID, event.messageID);
+      }
+      
+      const groupIndex = rentData.groups.findIndex(group => group.threadID === threadID);
+      
+      if (groupIndex === -1) {
+        return api.sendMessage(getText("delFailed"), event.threadID, event.messageID);
+      }
+      
+      rentData.groups.splice(groupIndex, 1);
+      writeFileSync(rentPath, JSON.stringify(rentData, null, 4));
+      
+      return api.sendMessage(
+        getText("delSuccess", threadID),
+        event.threadID,
+        event.messageID
+      );
+    
+    case "list":
+      if (rentData.groups.length === 0) {
+        return api.sendMessage(getText("listEmpty"), event.threadID, event.messageID);
+      }
+      
+      let message = getText("listHeader");
+      
+      rentData.groups.forEach((group, index) => {
+        const expiryDate = new Date(group.expiryDate);
+        message += getText(
+          "listItem",
+          index + 1,
+          group.threadID,
+          group.key,
+          expiryDate.toLocaleDateString()
+        );
+      });
+      
+      return api.sendMessage(message, event.threadID, event.messageID);
+    
+    case "key":
+      if (!threadID || !args[2]) {
+        return api.sendMessage(getText("invalidCommand"), event.threadID, event.messageID);
+      }
+      
+      const newKey = args[2];
+      const groupToUpdate = rentData.groups.findIndex(group => group.threadID === threadID);
+      
+      if (groupToUpdate === -1) {
+        return api.sendMessage(getText("keyUpdateFailed"), event.threadID, event.messageID);
+      }
+      
+      rentData.groups[groupToUpdate].key = newKey;
+      writeFileSync(rentPath, JSON.stringify(rentData, null, 4));
+      
+      return api.sendMessage(
+        getText("keyUpdated", threadID, newKey),
+        event.threadID,
+        event.messageID
+      );
+    
+    default:
+      return api.sendMessage(getText("invalidCommand"), event.threadID, event.messageID);
+  }
+};
+
+// Function to check if a group is in the rental list
+module.exports.checkRent = function (threadID) {
+  try {
+    const { readFileSync } = require("fs-extra");
+    const rentPath = __dirname + "/cache/rent.json";
+    
+    const rentData = JSON.parse(readFileSync(rentPath, "utf-8"));
+    const group = rentData.groups.find(g => g.threadID === threadID);
+    
+    if (!group) return false;
+    
+    const now = new Date();
+    const expiryDate = new Date(group.expiryDate);
+    
+    // Check if expired
+    if (now > expiryDate) return false;
+    
+    return {
+      isRented: true,
+      key: group.key,
+      expiryDate: expiryDate
+    };
+  } catch (error) {
+    console.error("Error in checkRent function:", error);
+    return false;
+  }
+};
