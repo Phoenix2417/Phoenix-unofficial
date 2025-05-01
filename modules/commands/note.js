@@ -1,74 +1,101 @@
 const axios = require('axios');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   config: {
     name: 'note',
-    version: '0.0.1',
+    version: '0.0.2',
     hasPermssion: 3,
-    credits: 'DC-Nam',
-    description: 'Ghi chú',
+    credits: 'DC-Nam & Satoru',
+    description: 'https://api.satoru.site/api/note/:UUID',
     commandCategory: 'Admin',
     usages: '[]',
-    usePrefix: true,
+    usePrefix: true, 
     images: [],
     cooldowns: 3,
   },
-
   run: async function(o) {
     const name = module.exports.config.name;
     const url = o.event?.messageReply?.args?.[0] || o.args[1];
-    const path = `${__dirname}/${o.args[0]}`;
+    let path = `${__dirname}/${o.args[0]}`;
     const send = msg => new Promise(r => o.api.sendMessage(msg, o.event.threadID, (err, res) => r(res), o.event.messageID));
-
+    
     try {
       if (/^https:\/\//.test(url)) {
-        return send(`🔗 Tệp: ${path}\n\nThả cảm xúc vào tin nhắn này để xác nhận thay thế nội dung tệp`).then(res => {
-          res = { ...res, name, path, o, url, action: 'confirm_replace_content' };
+        return send(`🔗 File: ${path}\n\nThả cảm xúc để xác nhận thay thế nội dung file`).then(res => {
+          res = {
+            ...res,
+            name,
+            path,
+            o,
+            url,
+            action: 'confirm_replace_content',
+          };
           global.client.handleReaction.push(res);
         });
       } else {
-        if (!fs.existsSync(path)) return send(`❎ Đường dẫn tệp không tồn tại`);
-
-        const content = fs.readFileSync(path, 'utf8');
-        const response = await axios.post('https://api.satoru.site/upload', { content });
-        const { edit, raw } = response.data;
-
-        return send(`✏️ Raw: \n${raw}\n\n📝 Edit: \n${edit}\n\────────────────\n📁 File: ${path}\n\n📌 Thả cảm xúc vào tin nhắn này để tải mã lên`).then(res => {
-          res = { ...res, name, path, o, url: raw, action: 'confirm_upload' };
+        if (!fs.existsSync(path)) return send(`❎ Đường dẫn file không tồn tại để export`);
+        const uuid = require('uuid').v4();
+        const editUrl = `https://api.satoru.site/api/note/${uuid}`;
+        const rawUrl = `https://api.satoru.site/api/note/${uuid}-raw`;
+        const fileContent = fs.readFileSync(path, 'utf8');
+        await axios.put(editUrl, fileContent, {
+          headers: {
+            'content-type': 'text/plain; charset=utf-8',
+          }
+        });
+        
+        return send(`📄 Raw:\n${rawUrl}\n✏️ Edit:\n${editUrl}\n\n🔗 Path: ${path}\n\n📌 Thả cảm xúc để tải nội dung mới từ note`).then(res => {
+          res = {
+            ...res,
+            name,
+            path,
+            o,
+            url: rawUrl,
+            action: 'confirm_replace_content',
+          };
           global.client.handleReaction.push(res);
         });
       }
-    } catch (e) {
+    } catch(e) {
       console.error(e);
-      send(`Lỗi: ${e.message}`);
+      send(`❌ Lỗi: ${e.toString()}`);
     }
   },
-
+  
   handleReaction: async function(o) {
     const _ = o.handleReaction;
     const send = msg => new Promise(r => o.api.sendMessage(msg, o.event.threadID, (err, res) => r(res), o.event.messageID));
-
+    
     try {
       if (o.event.userID != _.o.event.senderID) return;
-
+      
       switch (_.action) {
-        case 'confirm_replace_content':
-        case 'confirm_upload':
-          const content = (await axios.get(_.url, { responseType: 'text' })).data;
+        case 'confirm_replace_content': {
+          const content = (await axios.get(_.url, {
+            responseType: 'text',
+            headers: {
+              'User-Agent': 'fetch' 
+            }
+          })).data;
           fs.writeFileSync(_.path, content);
-          send(`✅ Nội dung đã được thay thế thành công\n\n🔗 Tệp: ${_.path}`).then(res => {
-            res = { ..._, ...res };
+          
+          send(`✅ Đã tải và cập nhật file thành công!\n\n🔗 File: ${_.path}`).then(res => {
+            res = {
+              ..._,
+              ...res,
+            };
             global.client.handleReaction.push(res);
           });
-          break;
+        }
+        break;
+        
         default:
           break;
       }
-    } catch (e) {
+    } catch(e) {
       console.error(e);
-      send(`Lỗi: ${e.message}`);
+      send(`❌ Lỗi: ${e.toString()}`);
     }
   }
 };
