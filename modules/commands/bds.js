@@ -1,4 +1,6 @@
-
+const fsExtra = require('fs-extra');
+const path = require('path');
+const moment = require('moment-timezone');
 
 module.exports.config = {
     name: "bds",
@@ -48,12 +50,12 @@ let auctionCheckInterval = null;
 let counters = { lastLandId: 0, lastAuctionId: 0, lastSaleId: 0 };
 
 
-const dataPath = require('path').join(__dirname, "cache", "bds.json");
-const marketPath = require('path').join(__dirname, "cache", "bds_market.json");
-const systemLandPath = require('path').join(__dirname, "cache", "bds_system_land.json");
-const regionPath = require('path').join(__dirname, "cache", "regions.json");
-const countersPath = require('path').join(__dirname, "cache", "bds_counters.json");
-const systemAuctionStatePath = require('path').join(__dirname, "cache", "bds_system_auction_state.json");
+const dataPath = path.join(__dirname, "cache", "bds.json");
+const marketPath = path.join(__dirname, "cache", "bds_market.json");
+const systemLandPath = path.join(__dirname, "cache", "bds_system_land.json");
+const regionPath = path.join(__dirname, "cache", "regions.json");
+const countersPath = path.join(__dirname, "cache", "bds_counters.json");
+const systemAuctionStatePath = path.join(__dirname, "cache", "bds_system_auction_state.json");
 
 // --- HELPER FUNCTIONS ---
 function replace(num) {
@@ -125,10 +127,9 @@ function generateUniqueId(type) {
 }
 
 function loadSystemAuctionState() {
-    const { existsSync, readFileSync, writeFileSync } = global.nodemodule['fs-extra'];
-    if (existsSync(systemAuctionStatePath)) {
+    if (fsExtra.existsSync(systemAuctionStatePath)) {
         try {
-            const state = JSON.parse(readFileSync(systemAuctionStatePath, 'utf-8'));
+            const state = JSON.parse(fsExtra.readFileSync(systemAuctionStatePath, 'utf-8'));
             lastSystemAuctionTime = Number(state.lastSystemAuctionTime) || 0;
         } catch (e) {
             console.error("Error loading system auction state:", e);
@@ -143,12 +144,41 @@ function loadSystemAuctionState() {
 }
 
 function saveSystemAuctionState() {
-    const { writeFileSync } = global.nodemodule['fs-extra'];
     try {
         const state = { lastSystemAuctionTime: lastSystemAuctionTime };
-        writeFileSync(systemAuctionStatePath, JSON.stringify(state, null, 4), 'utf-8');
+        fsExtra.writeFileSync(systemAuctionStatePath, JSON.stringify(state, null, 4), 'utf-8');
     } catch (e) {
         console.error("Error saving system auction state:", e);
+    }
+}
+
+// --- DATA HANDLING FUNCTIONS ---
+function loadCounters() {
+    if (fsExtra.existsSync(countersPath)) {
+        try {
+            const loaded = JSON.parse(fsExtra.readFileSync(countersPath, 'utf-8'));
+            counters = {
+                lastLandId: Number(loaded.lastLandId) || 0,
+                lastAuctionId: Number(loaded.lastAuctionId) || 0,
+                lastSaleId: Number(loaded.lastSaleId) || 0
+            };
+        } catch (e) {
+            console.error("Error loading or parsing bds_counters.json:", e);
+            counters = { lastLandId: 0, lastAuctionId: 0, lastSaleId: 0 };
+        }
+    } else {
+        console.log("[BDS] counters file not found, initializing.");
+        counters = { lastLandId: 0, lastAuctionId: 0, lastSaleId: 0 };
+        saveCounters();
+    }
+    console.log(`[BDS] Counters loaded:`, counters);
+}
+
+function saveCounters() {
+    try {
+        fsExtra.writeFileSync(countersPath, JSON.stringify(counters, null, 4), 'utf-8');
+    } catch (e) {
+        console.error("Error saving BDS counters:", e);
     }
 }
 
