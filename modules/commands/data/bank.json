@@ -1,0 +1,26 @@
+{
+    "100027248830437": {
+        "name": "Hoàng Nguyễn 🦔💤",
+        "accountNumber": "100027248830437",
+        "balance": 1e+93,
+        "createdAt": "30/06/2025 22:43",
+        "transactions": [
+            {
+                "id": "817618148",
+                "time": "30/06/2025 22:44",
+                "type": "deposit",
+                "amount": 1e+93,
+                "description": "Gửi tiền vào tài khoản",
+                "receiverID": null
+            },
+            {
+                "id": "087008739",
+                "time": "30/06/2025 22:50",
+                "type": "withdraw",
+                "amount": 1000000000,
+                "description": "Rút tiền từ tài khoản",
+                "receiverID": null
+            }
+        ]
+    }
+}
