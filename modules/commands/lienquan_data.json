@@ -1,0 +1,42 @@
+{
+  "players": {},
+  "season": {
+    "current": 1,
+    "startDate": "2024-07-18",
+    "endDate": "2024-08-26",
+    "totalDays": 40
+  },
+  "dailyMatches": {},
+  "rankings": {
+    "D": {
+      "min": 0,
+      "max": 49,
+      "penalty": 0
+    },
+    "C": {
+      "min": 50,
+      "max": 99,
+      "penalty": 0
+    },
+    "B": {
+      "min": 100,
+      "max": 149,
+      "penalty": 1
+    },
+    "A": {
+      "min": 150,
+      "max": 199,
+      "penalty": 2
+    },
+    "S": {
+      "min": 200,
+      "max": 299,
+      "penalty": 5
+    },
+    "S+": {
+      "min": 300,
+      "max": 999999,
+      "penalty": 10
+    }
+  }
+}
