@@ -1,0 +1,926 @@
+{
+    "all": {
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 1629
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 289
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 78
+        },
+        "61570829137733": {
+            "name": "Tom Chuche",
+            "count": 4
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 221
+        },
+        "61574906488756": {
+            "name": "Phuong Văn",
+            "count": 7
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 319
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 327
+        },
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 1088
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 963
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 548
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 109
+        },
+        "61572420513535": {
+            "name": "Nguyễn Linh",
+            "count": 2
+        },
+        "100068425944168": {
+            "name": "Sweet Kawaii",
+            "count": 26
+        },
+        "100041581452538": {
+            "name": "By's Bất Lực",
+            "count": 8
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 61
+        },
+        "61565490188413": {
+            "name": "Minh Juligor",
+            "count": 22
+        },
+        "100072282236050": {
+            "name": "Duc Hieu",
+            "count": 3
+        },
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 66
+        },
+        "61577074522610": {
+            "name": "Sang Bui",
+            "count": 2
+        },
+        "100091639800426": {
+            "name": "PNg Đông",
+            "count": 15
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 28
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 25
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 11
+        },
+        "100085322861242": {
+            "name": "Huỳnh Bảo",
+            "count": 15
+        },
+        "61572424534644": {
+            "name": "thành đạt ..lord arya..",
+            "count": 12
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 351
+        },
+        "100093528404972": {
+            "name": "My Không Trà",
+            "count": 120
+        },
+        "61567003825777": {
+            "name": "Mai Anh",
+            "count": 131
+        },
+        "61574886628272": {
+            "name": "Vann Thienn",
+            "count": 4
+        },
+        "61561142829998": {
+            "name": "Phạm Hiếu",
+            "count": 24
+        },
+        "100095114650581": {
+            "name": "Simp Hange Mạnh Nhất",
+            "count": 39
+        },
+        "100095106039596": {
+            "name": "Giáo Sư Khoa",
+            "count": 14
+        },
+        "61555686950291": {
+            "name": "Vũ Quang Huy",
+            "count": 5
+        },
+        "100076639391291": {
+            "name": "Yv Đá Raz",
+            "count": 30
+        },
+        "100045866211457": {
+            "name": "Nguyễn Hữu Phước",
+            "count": 43
+        },
+        "100027248830437": {
+            "name": "Hoàng Nguyễn 🦔💤",
+            "count": 16
+        }
+    },
+    "2025-07-19": {
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 455
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 58
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 40
+        },
+        "61570829137733": {
+            "name": "Tom Chuche",
+            "count": 4
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 80
+        },
+        "61574906488756": {
+            "name": "Phuong Văn",
+            "count": 2
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 20
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 86
+        },
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 206
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 193
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 166
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 45
+        },
+        "61572420513535": {
+            "name": "Nguyễn Linh",
+            "count": 1
+        },
+        "100068425944168": {
+            "name": "Sweet Kawaii",
+            "count": 25
+        },
+        "100041581452538": {
+            "name": "By's Bất Lực",
+            "count": 3
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 1
+        },
+        "61565490188413": {
+            "name": "Minh Juligor",
+            "count": 21
+        },
+        "100072282236050": {
+            "name": "Duc Hieu",
+            "count": 2
+        },
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 33
+        },
+        "61577074522610": {
+            "name": "Sang Bui",
+            "count": 1
+        },
+        "100091639800426": {
+            "name": "PNg Đông",
+            "count": 6
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 4
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 1
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 1
+        },
+        "100085322861242": {
+            "name": "Huỳnh Bảo",
+            "count": 11
+        },
+        "61572424534644": {
+            "name": "thành đạt ..lord arya..",
+            "count": 1
+        }
+    },
+    "2025-w30": {
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 1629
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 289
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 78
+        },
+        "61570829137733": {
+            "name": "Tom Chuche",
+            "count": 4
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 221
+        },
+        "61574906488756": {
+            "name": "Phuong Văn",
+            "count": 7
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 319
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 327
+        },
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 1088
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 963
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 548
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 109
+        },
+        "61572420513535": {
+            "name": "Nguyễn Linh",
+            "count": 2
+        },
+        "100068425944168": {
+            "name": "Sweet Kawaii",
+            "count": 26
+        },
+        "100041581452538": {
+            "name": "By's Bất Lực",
+            "count": 8
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 61
+        },
+        "61565490188413": {
+            "name": "Minh Juligor",
+            "count": 22
+        },
+        "100072282236050": {
+            "name": "Duc Hieu",
+            "count": 3
+        },
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 66
+        },
+        "61577074522610": {
+            "name": "Sang Bui",
+            "count": 2
+        },
+        "100091639800426": {
+            "name": "PNg Đông",
+            "count": 15
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 28
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 25
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 11
+        },
+        "100085322861242": {
+            "name": "Huỳnh Bảo",
+            "count": 15
+        },
+        "61572424534644": {
+            "name": "thành đạt ..lord arya..",
+            "count": 12
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 351
+        },
+        "100093528404972": {
+            "name": "My Không Trà",
+            "count": 120
+        },
+        "61567003825777": {
+            "name": "Mai Anh",
+            "count": 131
+        },
+        "61574886628272": {
+            "name": "Vann Thienn",
+            "count": 4
+        },
+        "61561142829998": {
+            "name": "Phạm Hiếu",
+            "count": 24
+        },
+        "100095114650581": {
+            "name": "Simp Hange Mạnh Nhất",
+            "count": 39
+        },
+        "100095106039596": {
+            "name": "Giáo Sư Khoa",
+            "count": 14
+        },
+        "61555686950291": {
+            "name": "Vũ Quang Huy",
+            "count": 5
+        },
+        "100076639391291": {
+            "name": "Yv Đá Raz",
+            "count": 30
+        },
+        "100045866211457": {
+            "name": "Nguyễn Hữu Phước",
+            "count": 43
+        },
+        "100027248830437": {
+            "name": "Hoàng Nguyễn 🦔💤",
+            "count": 16
+        }
+    },
+    "2025-07": {
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 1629
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 289
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 78
+        },
+        "61570829137733": {
+            "name": "Tom Chuche",
+            "count": 4
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 221
+        },
+        "61574906488756": {
+            "name": "Phuong Văn",
+            "count": 7
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 319
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 327
+        },
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 1088
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 963
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 548
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 109
+        },
+        "61572420513535": {
+            "name": "Nguyễn Linh",
+            "count": 2
+        },
+        "100068425944168": {
+            "name": "Sweet Kawaii",
+            "count": 26
+        },
+        "100041581452538": {
+            "name": "By's Bất Lực",
+            "count": 8
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 61
+        },
+        "61565490188413": {
+            "name": "Minh Juligor",
+            "count": 22
+        },
+        "100072282236050": {
+            "name": "Duc Hieu",
+            "count": 3
+        },
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 66
+        },
+        "61577074522610": {
+            "name": "Sang Bui",
+            "count": 2
+        },
+        "100091639800426": {
+            "name": "PNg Đông",
+            "count": 15
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 28
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 25
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 11
+        },
+        "100085322861242": {
+            "name": "Huỳnh Bảo",
+            "count": 15
+        },
+        "61572424534644": {
+            "name": "thành đạt ..lord arya..",
+            "count": 12
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 351
+        },
+        "100093528404972": {
+            "name": "My Không Trà",
+            "count": 120
+        },
+        "61567003825777": {
+            "name": "Mai Anh",
+            "count": 131
+        },
+        "61574886628272": {
+            "name": "Vann Thienn",
+            "count": 4
+        },
+        "61561142829998": {
+            "name": "Phạm Hiếu",
+            "count": 24
+        },
+        "100095114650581": {
+            "name": "Simp Hange Mạnh Nhất",
+            "count": 39
+        },
+        "100095106039596": {
+            "name": "Giáo Sư Khoa",
+            "count": 14
+        },
+        "61555686950291": {
+            "name": "Vũ Quang Huy",
+            "count": 5
+        },
+        "100076639391291": {
+            "name": "Yv Đá Raz",
+            "count": 30
+        },
+        "100045866211457": {
+            "name": "Nguyễn Hữu Phước",
+            "count": 43
+        },
+        "100027248830437": {
+            "name": "Hoàng Nguyễn 🦔💤",
+            "count": 16
+        }
+    },
+    "2025-07-20": {
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 385
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 79
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 4
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 3
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 158
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 6
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 121
+        },
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 1
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 330
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 147
+        },
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 479
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 80
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 15
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 206
+        },
+        "61565490188413": {
+            "name": "Minh Juligor",
+            "count": 1
+        },
+        "100093528404972": {
+            "name": "My Không Trà",
+            "count": 58
+        },
+        "61567003825777": {
+            "name": "Mai Anh",
+            "count": 31
+        },
+        "61574886628272": {
+            "name": "Vann Thienn",
+            "count": 1
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 9
+        },
+        "61574906488756": {
+            "name": "Phuong Văn",
+            "count": 5
+        },
+        "100091639800426": {
+            "name": "PNg Đông",
+            "count": 4
+        },
+        "61561142829998": {
+            "name": "Phạm Hiếu",
+            "count": 3
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 11
+        },
+        "61577074522610": {
+            "name": "Sang Bui",
+            "count": 1
+        }
+    },
+    "2025-07-21": {
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 18
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 53
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 4
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 307
+        },
+        "100093528404972": {
+            "name": "My Không Trà",
+            "count": 54
+        },
+        "61567003825777": {
+            "name": "Mai Anh",
+            "count": 33
+        },
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 219
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 91
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 145
+        },
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 398
+        },
+        "61561142829998": {
+            "name": "Phạm Hiếu",
+            "count": 14
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 94
+        },
+        "100095114650581": {
+            "name": "Simp Hange Mạnh Nhất",
+            "count": 6
+        },
+        "61572424534644": {
+            "name": "thành đạt ..lord arya..",
+            "count": 11
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 50
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 11
+        },
+        "100095106039596": {
+            "name": "Giáo Sư Khoa",
+            "count": 11
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 22
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 34
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 29
+        },
+        "100091639800426": {
+            "name": "PNg Đông",
+            "count": 5
+        },
+        "100085322861242": {
+            "name": "Huỳnh Bảo",
+            "count": 4
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 15
+        },
+        "61555686950291": {
+            "name": "Vũ Quang Huy",
+            "count": 4
+        },
+        "61574886628272": {
+            "name": "Vann Thienn",
+            "count": 1
+        },
+        "100076639391291": {
+            "name": "Yv Đá Raz",
+            "count": 17
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 8
+        },
+        "100041581452538": {
+            "name": "By's Bất Lực",
+            "count": 5
+        }
+    },
+    "2025-07-22": {
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 274
+        },
+        "100089599660274": {
+            "name": "Dương Vinh",
+            "count": 34
+        },
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 245
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 80
+        },
+        "100091556926320": {
+            "name": "Truong Nguyen",
+            "count": 133
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 38
+        },
+        "100095313424060": {
+            "name": "Nguyễn Doãn Hoàng Việt",
+            "count": 3
+        },
+        "61567003825777": {
+            "name": "Mai Anh",
+            "count": 67
+        },
+        "61577735017313": {
+            "name": "thành đạt ...lord arya..",
+            "count": 14
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 22
+        },
+        "100084017856812": {
+            "name": "Dương Quy Anh",
+            "count": 32
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 154
+        },
+        "100095114650581": {
+            "name": "Simp Hange Mạnh Nhất",
+            "count": 33
+        },
+        "100076639391291": {
+            "name": "Yv Đá Raz",
+            "count": 13
+        },
+        "100092455452771": {
+            "name": "Nguyễn Thế Tiến",
+            "count": 2
+        },
+        "61572420513535": {
+            "name": "Nguyễn Linh",
+            "count": 1
+        },
+        "100093528404972": {
+            "name": "My Không Trà",
+            "count": 8
+        },
+        "100084441883897": {
+            "name": "Hoàng Minh",
+            "count": 8
+        },
+        "100045866211457": {
+            "name": "Nguyễn Hữu Phước",
+            "count": 43
+        },
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 8
+        },
+        "100068425944168": {
+            "name": "Sweet Kawaii",
+            "count": 1
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 32
+        },
+        "61561142829998": {
+            "name": "Phạm Hiếu",
+            "count": 7
+        },
+        "61576295442730": {
+            "name": "Đỗ Khánh",
+            "count": 21
+        },
+        "100072282236050": {
+            "name": "Duc Hieu",
+            "count": 1
+        },
+        "100095106039596": {
+            "name": "Giáo Sư Khoa",
+            "count": 2
+        },
+        "61574886628272": {
+            "name": "Vann Thienn",
+            "count": 2
+        }
+    },
+    "2025-07-23": {
+        "61553695054909": {
+            "name": "Huỳnh Minh Nhật",
+            "count": 2
+        },
+        "61555955948865": {
+            "name": "Phạm Đức",
+            "count": 52
+        },
+        "100072404058687": {
+            "name": "Nguyễn Thiên",
+            "count": 16
+        },
+        "100085294240172": {
+            "name": "Rimuru Kawaii",
+            "count": 2
+        },
+        "100027248830437": {
+            "name": "Hoàng Nguyễn 🦔💤",
+            "count": 16
+        },
+        "100013631464952": {
+            "name": "Miyu Meoz",
+            "count": 8
+        },
+        "61575889568325": {
+            "name": "Gia Bảo",
+            "count": 4
+        },
+        "61555651497300": {
+            "name": "Nguyễn Minh",
+            "count": 4
+        },
+        "61555686950291": {
+            "name": "Vũ Quang Huy",
+            "count": 1
+        },
+        "100095106039596": {
+            "name": "Giáo Sư Khoa",
+            "count": 1
+        },
+        "61565809659431": {
+            "name": "Đức Hải",
+            "count": 4
+        }
+    }
+}
