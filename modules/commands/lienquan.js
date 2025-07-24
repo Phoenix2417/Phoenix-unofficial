@@ -13,7 +13,7 @@ module.exports.config = {
 };
 
 // Cấu trúc dữ liệu
-const dataPath = path.join(__dirname, 'lienquan_data.json');
+const dataPath = path.join(__dirname,cache, 'lienquan_data.json');
 
 // Khởi tạo dữ liệu mặc định
 function initData() {
