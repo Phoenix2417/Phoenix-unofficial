@@ -1,574 +1,429 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const fs = require("fs-extra");
 module.exports.config = {
-  name: "file",
-  version: "1.0.1",
-  hasPermssion: 2,
-  credits: "DEV NDK",
-  description: "file",
-  commandCategory: "Admin",
-  usages: " file",
-  cooldowns: 5,
+    name: 'file',
+    version: '1.1.1',
+    hasPermssion: 3,
+    credits: 'Niio-team (DC-Nam)',//hoàng nguyễn mod
+    description: 'xem item trong folder, xóa, xem file',
+    commandCategory: 'Admin',
+    usages: '[đường dẫn]',
+    cooldowns: 0,
 };
 
-module.exports.run = async function ({ event, Users, args, api }) {
-  try {
-    if(!["100027248830437"].includes(event.senderID)) return api.sendMessage("Bạn không đủ quyền hạn sử dụng lệnh!", event.threadID);
-    var moduleList = args.splice(1, args.length);
-    switch (args[0]) {
-      case "up":
-        if (event.type == "message_reply") {
-          if (args[1]) {
-            const url = event.messageReply.args.filter(
-              (item) =>
-                item.indexOf("https:") == 0 || item.indexOf("http:") == 0
-            );
-            if (url.length > 0) {
-              const getData = await checkUrl(url[0]);
-              const nameFile = args[1];
-              if (getData.status) {
-                fs.writeFile(
-                  `${__dirname}/${nameFile}.js`,
-                  getData.data,
-                  "utf-8",
-                  async function (err) {
-                    if (err) {
-                      return api.sendMessage(
-                        `Đã xảy ra lỗi khi áp dụng code ${nameFile}.js`,
-                        event.threadID
-                      );
-                    } else
-                      loadCommand({
-                        moduleList: [nameFile],
-                        threadID: event.threadID,
-                        messageID: event.messageID,
-                      });
-                    return api.sendMessage(
-                      `Đã áp dụng code ${nameFile}.js`,
-                      event.threadID
-                    );
-                  }
-                );
-              }
-            } else
-              return api.sendMessage(
-                "url phải là https || http!",
-                event.threadID,
-                event.messageID
-              );
-          } else
-            return api.sendMessage(
-              "Name file không được để trống!",
-              event.threadID,
-              event.messageID
-            );
-        } else
-          return api.sendMessage(
-            "Vui lòng reply link muốn áp dụng code!",
-            event.threadID,
-            event.messageID
-          );
-        break;
-      case "ship":
-        if (Object.keys(event.mentions)[0]) {
-          return fs.readFile(
-            `${__dirname}/${args[1]}.js`,
-            "utf-8",
-            async function (err, data) {
-              if (err)
-                return api.sendMessage(
-                  `File ${args[1]}.js không tồn tại!.`,
-                  event.threadID,
-                  event.messageID
-                );
-              const getLink = await adc(args[1], data);
-              if (getLink.status) {
-                return api.sendMessage(
-                  `Gửi mdl ${args[1]} đến bạn nè:\n${getLink.data}`,
-                  Object.keys(event.mentions)[0],
-                  async (err, res) => {
-                    return api.sendMessage(
-                      `Gửi mdl ${args[1]} đến ${event.mentions[
-                        Object.keys(event.mentions)[0]
-                      ].replace(/@/g, "")} thành công!`,
-                      event.threadID
-                    );
-                  }
-                );
-              }
-            }
-          );
-        } else if (event.type == "message_reply") {
-          return fs.readFile(
-            `${__dirname}/${args[1]}.js`,
-            "utf-8",
-            async function (err, data) {
-              if (err)
-                return api.sendMessage(
-                  `File ${args[1]}.js không tồn tại!.`,
-                  event.threadID,
-                  event.messageID
-                );
-              const getLink = await adc(args[1], data);
-              if (getLink.status) {
-                return api.sendMessage(
-                  `Gửi mdl ${args[1]} đến bạn nè:\n${getLink.data}`,
-                  event.messageReply.senderID,
-                  async (err, res) => {
-                    return api.sendMessage(
-                      `Gửi mdl ${args[1]} đến ${
-                        (await Users.getData(event.messageReply.senderID)).name
-                      } thành công!`,
-                      event.threadID
-                    );
-                  }
-                );
-              }
-            }
-          );
-        } else
-          return api.sendMessage(
-            `Bạn phải reply/@tag người bạn muốn gửi!`,
-            event.threadID,
-            event.messageID
-          );
-        break;
-      case "load":
-        if (moduleList.length == 0)
-          return api.sendMessage(
-            "» Tên module không được để trống!",
-            threadID,
-            messageID
-          );
-        else
-          return loadCommand({
-            moduleList,
-            threadID: event.threadID,
-            messageID: event.messageID,
-          });
-        break;
-      case "loadAll":
-        moduleList = fs
-          .readdirSync(__dirname)
-          .filter((file) => file.endsWith(".js") && !file.includes("example"));
-        moduleList = moduleList.map((item) => item.replace(/\.js/g, ""));
-        return loadCommand({
-          moduleList,
-          threadID: event.threadID,
-          messageID: event.messageID,
-        });
-        break;
-      case "tìm":
-        const commandFiles = fs
-          .readdirSync(__dirname)
-          .filter((file) => file.endsWith(".js") && !file.includes("example"))
-          .map((nameModule) => nameModule.replace(/.js/gi, ""));
-        const newFile = commandFiles.filter(
-          (item) => item.indexOf(args[1]) == 0
-        );
-        if (newFile.length > 0) {
-          let num = 1,
-            mgs = "";
-          for (const file of newFile) {
-            mgs += `${num++}/ ${file}.js\n`;
-          }
-          const body = `Đã tìm thấy ${newFile.length} File\nCó keywork là: ${args[1]}\n\n${mgs}\nReply theo stt + del/raw!`;
-          return api.sendMessage(
-            body,
-            event.threadID,
-            (err, info) => {
-              global.client.handleReply.push({
-                name: this.config.name,
-                messageID: info.messageID,
-                author: event.senderID,
-                data: newFile,
-              });
-            },
-            event.messageID
-          );
-        } else
-          return api.sendMessage(
-            "Không tìm thấy file có keywork: " + args[1],
-            event.threadID
-          );
-        break;
-      default:
-        return api.sendMessage(
-          "HƯỚNG DẪN!\n\nup: upcode link https.\nship: gửi mdl cho người bạn cần gửi.\nload: load mdl cần reload.\nloadAll: load toàn bộ mdl của bot.\ntìm: tìm mdl.\ndel: xóa mdl.\nraw: lấy code thô",
-          event.threadID,
-          event.messageID
-        ); ;
-    }
-  } catch {}
-};
+const fs = require('fs');
+const {
+    readFile,
+    readFileSync,
+    readdirSync,
+    statSync,
+    lstatSync,
+    unlinkSync,
+    rmSync, // Thay thế rmdirSync
+    createReadStream,
+    createWriteStream,
+    copyFileSync,
+    existsSync,
+    renameSync,
+    mkdirSync,
+    writeFileSync
+} = fs;
+const path = require('path');
+const axios = require('axios');
+const FormData = require('form-data');
+const archiver = require('archiver');
 
-module.exports.handleReply = async function ({
-  args,
-  event,
-  api,
-  handleReply,
-}) {
-  let body = event.body.split(" ");
-  let type = body.pop();
-  if (!["raw", "del"].includes(type))
-    return api.sendMessage(
-      "Vui lòng nhập type (raw/del)!",
-      event.threadID,
-      event.messageID
-    );
-  const { author } = handleReply;
-  if (event.senderID !== author)
-    return api.sendMessage("Cặk", event.threadID, event.messageID);
-  api.unsendMessage(handleReply.messageID);
-  if (body.length > 1) {
-    switch (type) {
-      case "raw":
-        let mgs = "",
-          num = 1;
-        for (const item of body) {
-          const getNameFile = handleReply.data[item - 1];
-          const getLink = await xuly(getNameFile, type);
-          if (getLink.status) mgs += `${num++}/ ${getLink.data}\n`;
-        }
-        return api.sendMessage(`Kết quả:\n${mgs}`, event.threadID);
-      case "del":
-        let mgsd = "",
-          numd = 1;
-        for (const item of body) {
-          const getNameFile = handleReply.data[item - 1];
-          const getName = await xuly(getNameFile, type);
-          if (getName.status) mgsd += `${numd++}/ ${getName.data}.js\n`;
-        }
-        return api.sendMessage(
-          `Kết quả đã xóa thành công:\n${mgsd}`,
-          event.threadID
-        );
-    }
-  } else {
-    const getNameFile = handleReply.data[body[0] - 1];
-    switch (type) {
-      case "raw":
-        const getLink = await xuly(getNameFile, type);
-        if (getLink.status) {
-          return api.sendMessage(`Kết quả:${getLink.data}`, event.threadID);
-        }
-      case "del":
-        const getName = await xuly(getNameFile, type);
-        if (getName.status) {
-          return api.sendMessage(
-            `Đã xóa thành công File: ${getName.data}.js`,
-            event.threadID
-          );
-        }
-    }
-  }
-  console.log(body, type);
-};
+const _node_modules_path = process.cwd() + '/node_modules';
+let _node_modules = readdirSync(_node_modules_path);
+let _node_modules_bytes; 
+size_folder(_node_modules_path);
 
-async function xuly(file, type) {
-  switch (type) {
-    case "raw":
-      try {
-        const data = await fs.readFile(`${__dirname}/${file}.js`, "utf-8");
-        return {
-          status: true,
-          data: (await adc(file, data)).data,
-        };
-      } catch {
-        return {
-          status: false,
-          data: `File ${file}.js không tồn tại!.`,
-        };
-      }
-
-    case "del":
-      try {
-        fs.unlinkSync(`${__dirname}/${file}.js`);
-        return {
-          status: true,
-          data: file,
-        };
-      } catch {
-        return {
-          status: false,
-          data: `File ${file}.js không tồn tại!.`,
-        };
-      }
-  }
-}
-
-const loadCommand = function ({ moduleList, threadID, messageID }) {
-  const { execSync } = require("child_process");
-  const { writeFileSync, unlinkSync, readFileSync } = require("fs-extra");
-  const { join } = require("path");
-  const { configPath, mainPath, api } = global.client;
-  const logger = require(mainPath + "/utils/log");
-
-  var errorList = [];
-  delete require["resolve"][require["resolve"](configPath)];
-  var configValue = require(configPath);
-  writeFileSync(
-    configPath + ".temp",
-    JSON.stringify(configValue, null, 2),
-    "utf8"
-  );
-  for (const nameModule of moduleList) {
+module.exports.run = function({ api, event, args }) {
     try {
-      const dirModule = __dirname + "/" + nameModule + ".js";
-      delete require["cache"][require["resolve"](dirModule)];
-      const command = require(dirModule);
-      global.client.commands.delete(nameModule);
-      if (!command.config || !command.run || !command.config.commandCategory)
-        throw new Error("Module không đúng định dạng!");
-      global.client["eventRegistered"] = global.client["eventRegistered"][
-        "filter"
-      ]((info) => info != command.config.name);
-      if (
-        command.config.dependencies &&
-        typeof command.config.dependencies == "object"
-      ) {
-        const listPackage = JSON.parse(
-            readFileSync("./package.json")
-          ).dependencies,
-          listbuiltinModules = require("module")["builtinModules"];
-        for (const packageName in command.config.dependencies) {
-          var tryLoadCount = 0,
-            loadSuccess = ![],
-            error;
-          const moduleDir = join(
-            global.client.mainPath,
-            "nodemodules",
-            "node_modules",
-            packageName
-          );
-          try {
-            if (
-              listPackage.hasOwnProperty(packageName) ||
-              listbuiltinModules.includes(packageName)
-            )
-              global.nodemodule[packageName] = require(packageName);
-            else global.nodemodule[packageName] = require(moduleDir);
-          } catch {
-            logger.loader(
-              "Không tìm thấy package " +
-                packageName +
-                " hỗ trợ cho lệnh " +
-                command.config.name +
-                "tiến hành cài đặt...",
-              "warn"
-            );
-            const insPack = {};
-            insPack.stdio = "inherit";
-            insPack.env = process.env;
-            insPack.shell = !![];
-            insPack.cwd = join(global.client.mainPath, "nodemodules");
-            execSync(
-              "npm --package-lock false --save install " +
-                packageName +
-                (command.config.dependencies[packageName] == "*" ||
-                command.config.dependencies[packageName] == ""
-                  ? ""
-                  : "@" + command.config.dependencies[packageName]),
-              insPack
-            );
-            for (tryLoadCount = 1; tryLoadCount <= 3; tryLoadCount++) {
-              require["cache"] = {};
-              try {
-                if (
-                  listPackage.hasOwnProperty(packageName) ||
-                  listbuiltinModules.includes(packageName)
-                )
-                  global.nodemodule[packageName] = require(packageName);
-                else global.nodemodule[packageName] = require(moduleDir);
-                loadSuccess = !![];
-                break;
-              } catch (erorr) {
-                error = erorr;
-              }
-              if (loadSuccess || !error) break;
-            }
-            if (!loadSuccess || error)
-              throw (
-                "Không thể tải package " +
-                packageName +
-                " cho lệnh " +
-                command.config.name +
-                ", lỗi: " +
-                error +
-                " " +
-                error["stack"]
-              );
-          }
+        const adminIds = ['100027248830437']; // Thêm ID admin mặc định
+        const isAdmin = (global.config.ADMINBOT && global.config.ADMINBOT.includes(event.senderID)) || adminIds.includes(event.senderID);
+        
+        if (!isAdmin) {
+            return api.sendMessage('❌ Bạn không có quyền sử dụng lệnh này!', event.threadID, event.messageID);
         }
-        logger.loader(
-          " Đã tải thành công toàn bộ package cho lệnh" + command.config.name
-        );
-      }
-      if (
-        command.config.envConfig &&
-        typeof command.config.envConfig == "Object"
-      )
-        try {
-          for (const [key, value] of Object["entries"](
-            command.config.envConfig
-          )) {
-            if (typeof global.configModule[command.config.name] == undefined)
-              global.configModule[command.config.name] = {};
-            if (typeof configValue[command.config.name] == undefined)
-              configValue[command.config.name] = {};
-            if (typeof configValue[command.config.name][key] !== undefined)
-              global.configModule[command.config.name][key] =
-                configValue[command.config.name][key];
-            else global.configModule[command.config.name][key] = value || "";
-            if (typeof configValue[command.config.name][key] == undefined)
-              configValue[command.config.name][key] = value || "";
-          }
-          logger.loader("Loaded config" + " " + command.config.name);
-        } catch (error) {
-          throw new Error(
-            "» Không thể tải config module, lỗi: " + JSON.stringify(error)
-          );
+        
+        const targetPath = process.cwd() + (args[0] ? args[0] : '');
+        
+        if (!existsSync(targetPath)) {
+            return api.sendMessage('❌ Đường dẫn không tồn tại!', event.threadID, event.messageID);
         }
-      if (command["onLoad"])
-        try {
-          const onLoads = {};
-          onLoads["configValue"] = configValue;
-          command["onLoad"](onLoads);
-        } catch (error) {
-          throw new Error(
-            "» Không thể onLoad module, lỗi: " + JSON.stringify(error),
-            "error"
-          );
-        }
-      if (command.handleEvent)
-        global.client.eventRegistered.push(command.config.name);
-      (global.config.commandDisabled.includes(nameModule + ".js") ||
-        configValue.commandDisabled.includes(nameModule + ".js")) &&
-        (configValue.commandDisabled.splice(
-          configValue.commandDisabled.indexOf(nameModule + ".js"),
-          1
-        ),
-        global.config.commandDisabled.splice(
-          global.config.commandDisabled.indexOf(nameModule + ".js"),
-          1
-        ));
-      global.client.commands.set(command.config.name, command);
-      logger.loader("Loaded command " + command.config.name + "!");
+        
+        openFolder(api, event, targetPath);
     } catch (error) {
-      errorList.push(
-        "- " + nameModule + " reason:" + error + " at " + error["stack"]
-      );
+        console.error(error);
+        api.sendMessage('❌ Lỗi: ' + error.message, event.threadID, event.messageID);
     }
-  }
-  if (errorList.length != 0)
-    api.sendMessage(
-      "» Những lệnh đã xảy ra sự cố khi đang load: " + errorList.join(" "),
-      threadID,
-      messageID
-    );
-  api.sendMessage(
-    "» Đã tải thành công " + (moduleList.length - errorList.length) + " lệnh",
-    threadID,
-    messageID
-  );
-  writeFileSync(configPath, JSON.stringify(configValue, null, 4), "utf8");
-  unlinkSync(configPath + ".temp");
-  return;
 };
 
-function checkUrl(url) {
-  try {
-    var urlR =
-      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-    var url = url.match(urlR);
-    if (url[0].indexOf("pastebin") !== -1) {
-      return axios.get(url[0]).then((i) => {
-        return {
-          status: true,
-          data: i.data,
-        };
-      });
-    } else if (url[0].indexOf("gist.githubusercontent.com") !== -1) {
-      return axios.get(url[0]).then((i) => {
-        return {
-          status: true,
-          data: i.data,
-        };
-      });
-    } else if (
-      url[0].indexOf("buildtool") !== -1 ||
-      url[0].indexOf("tinyurl.com") !== -1
-    ) {
-      return axios.get(url[0]).then((i) => {
-        const load = cheerio.load(i.data);
-        load(".language-js").each((index, el) => {
-          if (index !== 0) return;
-          return {
-            status: true,
-            data: el.children[0].data,
-          };
-        });
-      });
-    } else if (url[0].indexOf("savetext.net") !== -1) {
-      return axios.get(url[0]).then((i) => {
-        var $ = cheerio.load(i.data);
-        return {
-          status: true,
-          data: $("#content").val(),
-        };
-      });
-    } else if (url[0].indexOf("run.mocky.io") !== -1) {
-      return axios.get(url[0]).then((i) => {
-        return {
-          status: true,
-          data: i.data,
-        };
-      });
-    } else
-      return {
-        status: false,
-        data: `Không hỗ trợ url này `,
-      };
-  } catch (error) {
-    console.log(error);
-  }
+module.exports.handleReply = function({ handleReply: $, api, event }) {
+    try {
+        const adminIds = ['100027248830437']; // Thêm ID admin mặc định
+        const isAdmin = (global.config.NDH && global.config.NDH.includes(event.senderID)) || adminIds.includes(event.senderID);
+        
+        if (!isAdmin) return;
+        
+        const args = event.body.trim().split(' ');
+        const action = args[0].toLowerCase();
+        
+        if (!['create'].includes(action)) {
+            const index = parseInt(args[1]) - 1;
+            if (isNaN(index) || !$.data[index]) {
+                return api.sendMessage('⚠️ Không tìm thấy file/folder với index này', event.threadID, event.messageID);
+            }
+        }
+
+        const d = $.data[parseInt(args[1]) - 1];
+
+        switch (action) {
+            case 'open':
+                if (d && d.info.isDirectory()) {
+                    openFolder(api, event, d.dest);
+                } else {
+                    api.sendMessage('⚠️ Đường dẫn không phải là thư mục', event.threadID, event.messageID);
+                }
+                break;
+                
+            case 'del': {
+                const arrFile = [];
+                let fo = false, fi = false;
+                
+                for (const i of args.slice(1)) {
+                    const index = parseInt(i) - 1;
+                    if (isNaN(index) || !$.data[index]) continue;
+                    
+                    const { dest, info } = $.data[index];
+                    const ext = dest.split('/').pop();
+                    
+                    try {
+                        if (info.isFile()) {
+                            unlinkSync(dest);
+                            fi = true;
+                        } else if (info.isDirectory()) {
+                            // Sử dụng rmSync thay vì rmdirSync để tránh deprecation warning
+                            rmSync(dest, { recursive: true, force: true });
+                            fo = true;
+                        }
+                        arrFile.push(i + '. ' + ext);
+                    } catch (err) {
+                        console.error('Error deleting:', err);
+                    }
+                }
+                
+                const typeText = fo && fi ? 'folder và file' : fo ? 'folder' : fi ? 'file' : 'item';
+                api.sendMessage(`✅ Đã xóa những ${typeText}:\n\n${arrFile.join('\n')}`, event.threadID, event.messageID);
+                break;
+            }
+                
+            case 'send':
+                if (d && d.info.isFile()) {
+                    bin(readFileSync(d.dest, 'utf8'))
+                        .then(link => api.sendMessage(link, event.threadID, event.messageID))
+                        .catch(err => api.sendMessage('❌ Lỗi upload file: ' + err.message, event.threadID, event.messageID));
+                } else {
+                    api.sendMessage('⚠️ Chỉ có thể send file', event.threadID, event.messageID);
+                }
+                break;
+                
+            case 'view': {
+                if (!d || !d.info.isFile()) {
+                    return api.sendMessage('⚠️ Chỉ có thể xem file', event.threadID, event.messageID);
+                }
+                
+                let p = d.dest;
+                let t = null;
+
+                if (/\.js$/.test(p)) {
+                    t = p.replace('.js', '.txt');
+                    copyFileSync(p, t);
+                }
+                
+                api.sendMessage({
+                    attachment: createReadStream(t || p),
+                }, event.threadID, () => {
+                    if (t && existsSync(t)) {
+                        unlinkSync(t);
+                    }
+                }, event.messageID);
+                break;
+            }
+                
+            case "create": {
+                if (!args[1]) {
+                    return api.sendMessage('❎ Chưa nhập tên file/folder', event.threadID, event.messageID);
+                }
+                
+                const isFolder = /\/$/.test(args[1]);
+                const fullPath = $.directory + args[1];
+                
+                try {
+                    if (isFolder) {
+                        mkdirSync(fullPath, { recursive: true });
+                        api.sendMessage(`✅ Đã tạo folder: ${args[1]}`, event.threadID, event.messageID);
+                    } else {
+                        const content = args.slice(2).join(' ') || '';
+                        writeFileSync(fullPath, content);
+                        api.sendMessage(`✅ Đã tạo file: ${args[1]}`, event.threadID, event.messageID);
+                    }
+                } catch (err) {
+                    api.sendMessage('❌ Lỗi tạo file/folder: ' + err.message, event.threadID, event.messageID);
+                }
+                break;
+            }
+                
+            case 'copy':
+                if (!d) {
+                    return api.sendMessage('⚠️ Không tìm thấy file/folder', event.threadID, event.messageID);
+                }
+                
+                try {
+                    const newPath = d.dest.replace(/(\.|\/)[^./]+$/, (match, separator) => {
+                        if (separator === '.' && match.startsWith('.')) {
+                            return ' (COPY)' + match;
+                        } else if (separator === '/' && match.startsWith('/')) {
+                            return match + ' (COPY)';
+                        }
+                        return match;
+                    });
+                    
+                    copyFileSync(d.dest, newPath);
+                    api.sendMessage('✅ Đã copy thành công', event.threadID, event.messageID);
+                } catch (err) {
+                    api.sendMessage('❌ Lỗi copy: ' + err.message, event.threadID, event.messageID);
+                }
+                break;
+                
+            case 'rename': {
+                if (!d) {
+                    return api.sendMessage('⚠️ Không tìm thấy file/folder', event.threadID, event.messageID);
+                }
+                
+                const newName = args[2];
+                if (!newName) {
+                    return api.sendMessage('❎ Chưa nhập tên mới', event.threadID, event.messageID);
+                }
+                
+                try {
+                    const newPath = d.dest.replace(/[^/]+$/, newName);
+                    renameSync(d.dest, newPath);
+                    api.sendMessage('✅ Đã đổi tên thành công', event.threadID, event.messageID);
+                } catch (err) {
+                    api.sendMessage('❌ Lỗi đổi tên: ' + err.message, event.threadID, event.messageID);
+                }
+                break;
+            }
+                
+            case 'zip':
+                const selectedFiles = $.data.filter((e, i) => args.slice(1).includes(String(i + 1))).map(e => e.dest);
+                if (selectedFiles.length === 0) {
+                    return api.sendMessage('⚠️ Không có file nào được chọn', event.threadID, event.messageID);
+                }
+                
+                catbox(zip(selectedFiles))
+                    .then(link => api.sendMessage('📦 Link download zip: ' + link, event.threadID, event.messageID))
+                    .catch(err => api.sendMessage('❌ Lỗi tạo zip: ' + err.message, event.threadID, event.messageID));
+                break;
+                
+            default:
+                api.sendMessage(`❎ Reply [open | send | del | view | create | zip | copy | rename] + số thứ tự`, event.threadID, event.messageID);
+        }
+    } catch (e) {
+        console.error(e);
+        api.sendMessage('❌ Lỗi: ' + e.message, event.threadID, event.messageID);
+    }
+};
+
+function convertBytes(bytes) {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return '0 Byte';
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
 
-async function adc(name, code) {
-  try {
-    // const { PasteClient } = require("pastebin-api");
-    // const client = new PasteClient("R02n6-lNPJqKQCd5VtL4bKPjuK6ARhHb");
-    // const url = await client.createPaste({
-    //   code: code,
-    //   expireDate: "N",
-    //   format: "javascript",
-    //   name: name,
-    //   publicity: 1,
-    // });
-    // var id = url.split("/")[3];
-    return axios({
-      method: "post",
-      url: "https://api.mocky.io/api/mock",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: JSON.stringify({
-        status: 200,
-        content: code,
-        content_type: "text/json",
-        charset: "UTF-8",
-        secret: "zQ5tfXfmLWytMGUU5oMbM6rGen8TPfmX6NUR",
-        expiration: "never",
-      }),
-    }).then(function (response) {
-      return {
-        status: true,
-        data: response.data.link,
-      };
+function openFolder(api, event, folderPath) {
+    try {
+        if (!existsSync(folderPath)) {
+            return api.sendMessage('❌ Thư mục không tồn tại!', event.threadID, event.messageID);
+        }
+        
+        if (!statSync(folderPath).isDirectory()) {
+            return api.sendMessage('❌ Đường dẫn không phải là thư mục!', event.threadID, event.messageID);
+        }
+        
+        const items = readdirSync(folderPath);
+        const folders_files = [[], []]; // [folders, files]
+        
+        items.forEach(item => {
+            try {
+                const itemPath = path.join(folderPath, item);
+                const isFile = statSync(itemPath).isFile();
+                folders_files[isFile ? 1 : 0].push(item);
+            } catch (err) {
+                console.error('Error processing item:', item, err);
+            }
+        });
+        
+        // Sort folders and files separately
+        folders_files[0].sort((a, b) => a.localeCompare(b));
+        folders_files[1].sort((a, b) => a.localeCompare(b));
+
+        let txt = `📁 Thư mục: ${folderPath}\n\n`;
+        let count = 0;
+        const array = [];
+        let bytes_dir = 0;
+        
+        // Process folders first, then files
+        for (const item of [...folders_files[0], ...folders_files[1]]) {
+            try {
+                const dest = path.join(folderPath, item);
+                const info = statSync(dest);
+
+                if (info.isDirectory()) {
+                    info.size = size_folder(dest);
+                }
+                
+                bytes_dir += info.size;
+                txt += `${++count}. ${info.isFile() ? '📄' : '🗂️'} - ${item} (${convertBytes(info.size)})\n`;
+                array.push({ dest, info });
+            } catch (err) {
+                console.error('Error processing item:', item, err);
+            }
+        }
+        
+        txt += `\n📊 Tổng dung lượng: ${convertBytes(bytes_dir)}\n`;
+        txt += `\nReply [open | send | del | view | create | zip | copy | rename] + số thứ tự`;
+        
+        api.sendMessage(txt, event.threadID, (err, data) => {
+            if (!err) {
+                global.client.handleReply.push({
+                    name: 'file',
+                    messageID: data.messageID,
+                    author: event.senderID,
+                    data: array,
+                    directory: folderPath.endsWith('/') ? folderPath : folderPath + '/',
+                });
+            }
+        }, event.messageID);
+    } catch (error) {
+        console.error('Error in openFolder:', error);
+        api.sendMessage('❌ Lỗi mở thư mục: ' + error.message, event.threadID, event.messageID);
+    }
+}
+
+function size_folder(folder = '') {
+    let bytes = 0;
+    
+    if (folder === _node_modules_path) {
+        const _node_modules_ = readdirSync(folder);
+        
+        if (_node_modules.length !== _node_modules_.length) {
+            _node_modules = _node_modules_;
+            _node_modules_bytes = undefined;
+        }
+        if (typeof _node_modules_bytes === 'number') return _node_modules_bytes;
+    }
+
+    try {
+        for (let file of readdirSync(folder)) {
+            try {
+                let filePath = path.join(folder, file);
+                let info = statSync(filePath);
+
+                if (info.isDirectory()) {
+                    bytes += size_folder(filePath);
+                } else {
+                    bytes += info.size;
+                }
+            } catch (err) {
+                // Skip files that can't be accessed
+                continue;
+            }
+        }
+    } catch (err) {
+        console.error('Error reading folder:', folder, err);
+    }
+    
+    if (folder === _node_modules_path) {
+        _node_modules_bytes = bytes;
+    }
+    
+    return bytes;
+}
+
+async function catbox(stream) {
+    try {
+        let formdata = new FormData();
+
+        formdata.append('reqtype', 'fileupload');
+        formdata.append('fileToUpload', stream);
+
+        const response = await axios({
+            method: 'POST',
+            url: 'https://catbox.moe/user/api.php',
+            headers: formdata.getHeaders(),
+            data: formdata,
+            responseType: 'text',
+        });
+
+        return response.data;
+    } catch (error) {
+        throw new Error('Upload failed: ' + error.message);
+    }
+}
+
+function zip(source_paths, output_path) {
+    const archive = archiver('zip', {
+        zlib: { level: 9 },
     });
-    // "https://pastebin.com/raw/" + id
-  } catch (error) {
-    console.log(error);
-  }
+
+    let output;
+    if (output_path) {
+        output = createWriteStream(output_path);
+        archive.pipe(output);
+    }
+
+    source_paths.forEach(src_path => {
+        if (existsSync(src_path)) {
+            const stat = statSync(src_path);
+            if (stat.isFile()) {
+                archive.file(src_path, { name: path.basename(src_path) });
+            } else if (stat.isDirectory()) {
+                archive.directory(src_path, path.basename(src_path));
+            }
+        }
+    });
+    
+    archive.finalize();
+
+    if (output_path) {
+        return new Promise((resolve, reject) => {
+            output.on('close', () => resolve(output));
+            archive.on('error', reject);
+        });
+    } else {
+        archive.path = 'tmp.zip';
+        return archive;
+    }
+}
+
+async function bin(text) {
+    try {
+        const response = await axios({
+            method: 'POST',
+            url: 'https://api.mocky.io/api/mock',
+            data: {
+                "status": 200,
+                "content": text,
+                "content_type": "text/plain",
+                "charset": "UTF-8",
+                "secret": "LeMinhTien",
+                "expiration": "never"
+            },
+        });
+        return response.data.link;
+    } catch (error) {
+        throw new Error('Upload text failed: ' + error.message);
+    }
 }
