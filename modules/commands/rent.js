@@ -63,7 +63,7 @@ module.exports.languages = {
     delFailed: "Xóa nhóm thất bại, nhóm không tồn tại trong danh sách thuê",
     listEmpty: "Không có nhóm nào đang thuê bot",
     listHeader: "⚡️ Danh sách các nhóm đang thuê bot ⚡️\n",
-    listItem: "%1. ID: %2\n    Key: %3\n    Ngày hết hạn: %4\n",
+    listItem: "%1. ID: %2 | Tên: %3\n    Key: %4\n    Ngày hết hạn: %5\n",
     keyUpdated: "Đã cập nhật key cho nhóm %1 thành %2",
     keyUpdateFailed: "Cập nhật key thất bại, nhóm không tồn tại trong danh sách thuê",
     keyActivated: "✅ Key %1 đã được kích hoạt thành công!\n📅 Thời hạn: %2 (30 ngày)",
@@ -174,9 +174,38 @@ module.exports.run = async function ({ api, event, args, getText, permission }) 
     case "list": {
       if (rentData.groups.length === 0) return api.sendMessage(_getText("listEmpty"), threadID, event.messageID);
       let msg = _getText("listHeader");
-      rentData.groups.forEach((g, i) => {
-        msg += _getText("listItem", i + 1, g.threadID, g.key, new Date(g.expiryDate).toLocaleDateString("vi-VN"));
-      });
+      
+      // Lấy thông tin của tất cả các nhóm cùng lúc
+      const threadInfoPromises = rentData.groups.map(group => 
+        api.getThreadInfo(group.threadID).catch(() => ({ threadName: "Không thể lấy tên" }))
+      );
+      
+      try {
+        const threadInfos = await Promise.all(threadInfoPromises);
+        
+        rentData.groups.forEach((g, i) => {
+          const threadName = threadInfos[i]?.threadName || "Không thể lấy tên";
+          msg += _getText("listItem", 
+            i + 1, 
+            g.threadID, 
+            threadName,
+            g.key, 
+            new Date(g.expiryDate).toLocaleDateString("vi-VN")
+          );
+        });
+      } catch (error) {
+        // Fallback nếu không lấy được thông tin thread
+        rentData.groups.forEach((g, i) => {
+          msg += _getText("listItem", 
+            i + 1, 
+            g.threadID, 
+            "Không thể lấy tên",
+            g.key, 
+            new Date(g.expiryDate).toLocaleDateString("vi-VN")
+          );
+        });
+      }
+      
       return api.sendMessage(msg, threadID, event.messageID);
     }
     case "genkey": {
