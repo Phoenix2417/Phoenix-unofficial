@@ -38,21 +38,30 @@ const gameMessages = [
   "⚡ Tập hợp lực lượng! Đã đến giờ rush rank rồi! 🏆"
 ];
 
+// Danh sách lane và emoji tương ứng
+const LANES = {
+  'top': '🛡️ TOP',
+  'mid': '⚡ MID', 
+  'ad': '🏹 AD',
+  'sp': '💊 SUPPORT',
+  'rừng': '🌲 JUNGLE'
+};
+
 // Thông báo luật và hướng dẫn đăng ký
 const registrationRules = `
-ĐỌC THẬT KĨ LUẬT Ở DƯỚI ĐẶC BIỆT LÀ BƯỚC ĐĂNG KÝ VÀ LƯU Ý Ở CUỐI
+📋 CÁCH ĐĂNG KÝ THAM GIA:
 
-*_____________________________*
+✅ Bước 1: React ❤️ vào tin nhắn này
+✅ Bước 2: Reply tin nhắn này với lane bạn muốn chơi
 
-HAI BƯỚC QUAN TRỌNG ĐỂ ĐĂNG KÝ
-->Bước 1: Tim ( ❤️ ) tin nhắn để tham gia giải đấu
-->Bước 2: Đề cử 2 lane mà bạn chơi để tôi xếp vị trí hợp lý cho bạn
+🎯 CÁCH CHỌN LANE:
+• Chọn 1 lane: "ad" hoặc "mid" hoặc "top"...
+• Chọn 2 lane: "ad-mid" hoặc "top-sp"...
+• Chọn tất cả: "all" hoặc "tất cả"
 
-*_____________________________*
+📝 VÍ DỤ: Reply "ad-mid" để chọn AD và MID
 
-LƯU Ý:
--Những người tim và đề cử 2 lane sẽ đc vào đội
--Ai làm thiếu 1 trong 2 bước sẽ không tính và tuyển những người thực hiện đủ 2 bước vào danh sách`;
+⚠️ LƯU Ý: Phải thực hiện đủ 2 bước mới được tính!`;
 
 // Hàm lấy thời gian vào trận dựa trên thời điểm thông báo
 function getGameStartTime(hour, minute) {
@@ -71,10 +80,16 @@ function initData() {
   if (!fs.existsSync(dataPath)) {
     fs.writeFileSync(dataPath, JSON.stringify({
       threads: [],
-      lastSent: {}
+      lastSent: {},
+      registrations: {} // Thêm object để lưu đăng ký
     }), "utf-8");
   }
-  return JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+  if (!data.registrations) {
+    data.registrations = {};
+    saveData(data);
+  }
+  return data;
 }
 
 // Lưu dữ liệu
@@ -109,6 +124,71 @@ function getThreads() {
 // Lấy một thông báo game ngẫu nhiên
 function getRandomGameMessage() {
   return gameMessages[Math.floor(Math.random() * gameMessages.length)];
+}
+
+// Xử lý đăng ký lane
+function parseLanes(laneText) {
+  const text = laneText.toLowerCase().trim();
+  
+  if (text === 'all' || text === 'tất cả' || text === 'tatca') {
+    return ['top', 'mid', 'ad', 'support', 'rừng'];
+  }
+  
+  const lanes = text.split(/[-,\s]+/).map(lane => {
+    lane = lane.trim();
+    if (lane === 'ad') return 'ad';
+    if (lane === 'sp') return 'support';
+    if (lane === 'rừng') return 'rừng';
+    return lane;
+  }).filter(lane => Object.keys(LANES).includes(lane));
+  
+  return [...new Set(lanes)]; // Loại bỏ trùng lặp
+}
+
+// Lưu đăng ký của người dùng
+function saveRegistration(threadID, userID, messageID, lanes, userName) {
+  const data = initData();
+  const registrationKey = `${threadID}_${messageID}`;
+  
+  if (!data.registrations[registrationKey]) {
+    data.registrations[registrationKey] = {
+      users: {},
+      messageID: messageID,
+      threadID: threadID,
+      timestamp: Date.now()
+    };
+  }
+  
+  data.registrations[registrationKey].users[userID] = {
+    lanes: lanes,
+    name: userName,
+    timestamp: Date.now()
+  };
+  
+  saveData(data);
+}
+
+// Lấy danh sách đăng ký cho một tin nhắn
+function getRegistrations(threadID, messageID) {
+  const data = initData();
+  const registrationKey = `${threadID}_${messageID}`;
+  return data.registrations[registrationKey] || null;
+}
+
+// Dọn dẹp đăng ký cũ (trên 24 giờ)
+function cleanupOldRegistrations() {
+  const data = initData();
+  const now = Date.now();
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+  
+  Object.keys(data.registrations).forEach(key => {
+    const registration = data.registrations[key];
+    if (now - registration.timestamp > twentyFourHours) {
+      delete data.registrations[key];
+    }
+  });
+  
+  saveData(data);
 }
 
 // Khởi tạo interval khi load module
@@ -168,8 +248,16 @@ module.exports.onLoad = function ({ api }) {
               index -= 1;
             }
             
-            await api.sendMessage({ body, mentions }, threadID);
+            const sentMessage = await api.sendMessage({ body, mentions }, threadID);
             console.log(`[GAME-REMINDER] Đã gửi thông báo game đến nhóm ${threadID} (đã tag ${listUserID.length} thành viên) - Thời gian vào trận: ${gameStartTime}`);
+            
+            // Lưu messageID để xử lý reply sau này
+            global.gameReminderMessages = global.gameReminderMessages || {};
+            global.gameReminderMessages[sentMessage.messageID] = {
+              threadID: threadID,
+              gameTime: gameStartTime,
+              timestamp: Date.now()
+            };
             
             await new Promise(resolve => setTimeout(resolve, 500));
           } catch (error) {
@@ -195,6 +283,185 @@ module.exports.onLoad = function ({ api }) {
         saveData(data);
       }
     }, 5000);
+    
+    // Dọn dẹp đăng ký cũ mỗi giờ
+    setInterval(() => {
+      cleanupOldRegistrations();
+    }, 60 * 60 * 1000);
+  }
+};
+
+// Xử lý reply tin nhắn
+module.exports.handleReply = async function ({ api, event, handleReply }) {
+  const { threadID, messageID, senderID, body } = event;
+  
+  try {
+    const userInfo = await api.getUserInfo(senderID);
+    const userName = userInfo[senderID].name;
+    
+    // Parse lanes từ tin nhắn reply
+    const lanes = parseLanes(body);
+    
+    if (lanes.length === 0) {
+      return api.sendMessage(
+        `❌ Lane không hợp lệ!\n\n` +
+        `📝 Cách chọn lane:\n` +
+        `• 1 lane: "ad", "mid", "top", "sp", "rừng"\n` +
+        `• Nhiều lane: "ad-mid", "top-sp"...\n` +
+        `• Tất cả: "all" hoặc "tất cả"\n\n` +
+        `Vui lòng reply lại với lane hợp lệ!`,
+        threadID, messageID
+      );
+    }
+    
+    // Lưu đăng ký
+    saveRegistration(threadID, senderID, handleReply.messageID, lanes, userName);
+    
+    const laneText = lanes.map(lane => LANES[lane] || lane.toUpperCase()).join(', ');
+    
+    return api.sendMessage(
+      `✅ Đã đăng ký thành công!\n\n` +
+      `👤 Người chơi: ${userName}\n` +
+      `🎯 Lane đã chọn: ${laneText}\n\n` +
+      `💡 Nhớ react ❤️ vào tin nhắn gốc để hoàn tất đăng ký nhé!`,
+      threadID, messageID
+    );
+    
+  } catch (error) {
+    console.error("[GAME-REMINDER] Lỗi xử lý reply:", error);
+    return api.sendMessage(
+      "❌ Có lỗi xảy ra khi xử lý đăng ký. Vui lòng thử lại!",
+      threadID, messageID
+    );
+  }
+};
+
+// Xử lý reaction để hiển thị danh sách
+module.exports.handleReaction = async function ({ api, event, handleReaction }) {
+  const { threadID, messageID } = event;
+  
+  try {
+    // Lấy thông tin tin nhắn gốc
+    const messageInfo = await api.getMessageInfo(handleReaction.messageID);
+    const gameInfo = global.gameReminderMessages?.[handleReaction.messageID];
+    
+    if (!gameInfo) return;
+    
+    // Lấy danh sách người react
+    const reactions = messageInfo.reactions || {};
+    const heartReactions = reactions['❤'] || [];
+    const heartUserIDs = heartReactions.map(r => r.userID);
+    
+    // Lấy danh sách đăng ký
+    const registrations = getRegistrations(threadID, handleReaction.messageID);
+    if (!registrations) {
+      return api.sendMessage(
+        "📋 Chưa có ai đăng ký lane. Hãy reply tin nhắn gốc để chọn lane!",
+        threadID
+      );
+    }
+    
+    // Lọc người dùng đã hoàn tất cả 2 bước
+    const validUsers = Object.keys(registrations.users).filter(userID => 
+      heartUserIDs.includes(userID)
+    );
+    
+    if (validUsers.length === 0) {
+      return api.sendMessage(
+        "📋 Chưa có ai hoàn tất đăng ký (cần cả react ❤️ và reply lane).",
+        threadID
+      );
+    }
+    
+    // Tạo danh sách theo lane
+    const laneGroups = {};
+    const allLanes = ['top', 'mid', 'ad', 'sp', 'rừng'];
+    
+    allLanes.forEach(lane => {
+      laneGroups[lane] = [];
+    });
+    
+    validUsers.forEach(userID => {
+      const userData = registrations.users[userID];
+      userData.lanes.forEach(lane => {
+        if (laneGroups[lane]) {
+          laneGroups[lane].push(`👤 ${userData.name}`);
+        }
+      });
+    });
+    
+    // Tạo tin nhắn kết quả
+    let resultMessage = `🎮 DANH SÁCH ĐĂNG KÝ THAM GIA\n`;
+    resultMessage += `⏰ Thời gian vào trận: ${gameInfo.gameTime}\n`;
+    resultMessage += `👥 Tổng cộng: ${validUsers.length} người\n\n`;
+    
+    let hasAnyRegistration = false;
+    allLanes.forEach(lane => {
+      if (laneGroups[lane].length > 0) {
+        hasAnyRegistration = true;
+        const laneEmoji = LANES[lane];
+        resultMessage += `${laneEmoji}:\n${laneGroups[lane].join('\n')}\n\n`;
+      }
+    });
+    
+    if (!hasAnyRegistration) {
+      resultMessage += "❌ Chưa có ai đăng ký lane hợp lệ.";
+    }
+    
+    // Tag tất cả người đã đăng ký hợp lệ
+    const mentions = [];
+    let bodyWithMentions = resultMessage;
+    let index = bodyWithMentions.length;
+    
+    validUsers.forEach(userID => {
+      bodyWithMentions += "‎";
+      mentions.push({ id: userID, tag: "‎", fromIndex: index });
+      index += 1;
+    });
+    
+    return api.sendMessage({
+      body: bodyWithMentions,
+      mentions: mentions
+    }, threadID);
+    
+  } catch (error) {
+    console.error("[GAME-REMINDER] Lỗi xử lý reaction:", error);
+  }
+};
+
+// Xử lý tin nhắn
+module.exports.handleEvent = async function ({ api, event }) {
+  const { threadID, messageID, senderID, type, messageReply, body } = event;
+  
+  // Xử lý reply vào tin nhắn của bot
+  if (type === "message_reply" && messageReply) {
+    const repliedMessageID = messageReply.messageID;
+    
+    // Kiểm tra xem có phải reply vào tin nhắn game reminder không
+    if (global.gameReminderMessages && global.gameReminderMessages[repliedMessageID]) {
+      // Gọi handleReply
+      await this.handleReply({
+        api,
+        event,
+        handleReply: { messageID: repliedMessageID }
+      });
+    }
+  }
+  
+  // Xử lý reaction vào tin nhắn game reminder
+  if (type === "message_reaction") {
+    const reactedMessageID = event.messageID;
+    
+    if (global.gameReminderMessages && global.gameReminderMessages[reactedMessageID]) {
+      // Delay một chút để đảm bảo reaction đã được lưu
+      setTimeout(() => {
+        this.handleReaction({
+          api,
+          event,
+          handleReaction: { messageID: reactedMessageID }
+        });
+      }, 1000);
+    }
   }
 };
 
@@ -235,15 +502,16 @@ module.exports.run = async function ({ api, event, args }) {
     return api.sendMessage(
       `===== [ GAME REMINDER ] =====\n\n` +
       `Sử dụng:\n` +
-      `- gamereminder add: Thêm nhóm hiện tại vào danh sách nhận thông báo\n` +
-      `- gamereminder remove: Xóa nhóm hiện tại khỏi danh sách nhận thông báo\n` +
-      `- gamereminder list: Xem danh sách các nhóm đang nhận thông báo\n` +
-      `- gamereminder test: Gửi thông báo test để kiểm tra\n\n` +
+      `- rmb add: Thêm nhóm hiện tại vào danh sách nhận thông báo\n` +
+      `- rmb remove: Xóa nhóm hiện tại khỏi danh sách nhận thông báo\n` +
+      `- rmb list: Xem danh sách các nhóm đang nhận thông báo\n` +
+      `- rmb test: Gửi thông báo test để kiểm tra\n\n` +
       `📅 Lịch thông báo hàng ngày:\n` +
       `• 12:00 → Vào trận lúc 13:30\n` +
       `• 19:00 → Vào trận lúc 20:00\n` +
       `• 20:50 → Vào trận lúc 21:00\n\n` +
-      `⏰ Thông báo tiếp theo: ${nextInfo.notifyTime} (Vào trận: ${nextInfo.gameTime})`,
+      `⏰ Thông báo tiếp theo: ${nextInfo.notifyTime} (Vào trận: ${nextInfo.gameTime})\n\n` +
+      `🎯 Tính năng mới: Đăng ký lane bằng cách reply tin nhắn thông báo!`,
       threadID, messageID
     );
   }
@@ -259,7 +527,10 @@ module.exports.run = async function ({ api, event, args }) {
           `• 12:00 → Vào trận lúc 13:30\n` +
           `• 19:00 → Vào trận lúc 20:00\n` +
           `• 20:50 → Vào trận lúc 21:00\n\n` +
-          `⏰ Thông báo tiếp theo: ${nextInfo.notifyTime} (Vào trận: ${nextInfo.gameTime})`,
+          `⏰ Thông báo tiếp theo: ${nextInfo.notifyTime} (Vào trận: ${nextInfo.gameTime})\n\n` +
+          `🎯 Người dùng có thể đăng ký lane bằng cách:\n` +
+          `1️⃣ React ❤️ vào tin nhắn thông báo\n` +
+          `2️⃣ Reply tin nhắn thông báo với lane muốn chơi`,
           threadID, messageID
         );
       } else {
@@ -326,7 +597,17 @@ module.exports.run = async function ({ api, event, args }) {
           index -= 1;
         }
         
-        return api.sendMessage({ body, mentions }, threadID, messageID);
+        const sentMessage = await api.sendMessage({ body, mentions }, threadID, messageID);
+        
+        // Lưu messageID để xử lý reply sau này
+        global.gameReminderMessages = global.gameReminderMessages || {};
+        global.gameReminderMessages[sentMessage.messageID] = {
+          threadID: threadID,
+          gameTime: testGameTime,
+          timestamp: Date.now()
+        };
+        
+        return;
       } catch (error) {
         return api.sendMessage(
           "❎ Không thể gửi tin nhắn test. Vui lòng thử lại sau.",
@@ -337,7 +618,7 @@ module.exports.run = async function ({ api, event, args }) {
     
     default: {
       return api.sendMessage(
-        "❎ Lựa chọn không hợp lệ. Sử dụng: gamereminder [add/remove/list/test]",
+        "❎ Lựa chọn không hợp lệ. Sử dụng: rmb [add/remove/list/test]",
         threadID, messageID
       );
     }
