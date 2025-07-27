@@ -1,9 +1,9 @@
 module.exports.config = {
     name: "schedule",
-    version: "1.0.1",
+    version: "1.0.2",
     hasPermssion: 0,
-    credits: "Hoàng Nguyễn",//fix by claude
-    description: "Quản lý thời khóa biểu cá nhân với nhắc nhở tự động",
+    credits: "Hoàng Nguyễn",//fix by claude - Vietnam timezone
+    description: "Quản lý thời khóa biểu cá nhân với nhắc nhở tự động (múi giờ Việt Nam)",
     commandCategory: "Tiện ích",
     usages: "[add/remove/view/clear] [thông tin]",
     cooldowns: 3,
@@ -27,13 +27,41 @@ module.exports.languages = {
 🔸 Xóa lịch: schedule remove [số thứ tự]  
 🔸 Xóa tất cả: schedule clear
 
-⏰ Định dạng thời gian: HH:MM (24h)
+⏰ Định dạng thời gian: HH:MM (24h) - Múi giờ Việt Nam (UTC+7)
 💡 Nhắc nhở sẽ được gửi trong nhóm chat này`
     }
 };
 
 // Biến để theo dõi thời gian cuối cùng đã kiểm tra
 let lastCheckedTime = '';
+
+// Hàm lấy thời gian Việt Nam
+function getVietnamTime() {
+    const now = new Date();
+    // Chuyển đổi sang múi giờ Việt Nam (UTC+7)
+    const vietnamTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+    const hours = String(vietnamTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(vietnamTime.getUTCMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+// Hàm lấy thời gian Việt Nam đầy đủ cho hiển thị
+function getVietnamDateTime() {
+    const now = new Date();
+    const vietnamTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+    
+    const day = String(vietnamTime.getUTCDate()).padStart(2, '0');
+    const month = String(vietnamTime.getUTCMonth() + 1).padStart(2, '0');
+    const year = vietnamTime.getUTCFullYear();
+    const hours = String(vietnamTime.getUTCHours()).padStart(2, '0');
+    const minutes = String(vietnamTime.getUTCMinutes()).padStart(2, '0');
+    
+    return {
+        time: `${hours}:${minutes}`,
+        date: `${day}/${month}/${year}`,
+        fullDateTime: `${hours}:${minutes} - ${day}/${month}/${year}`
+    };
+}
 
 module.exports.run = async function({ api, event, args, Users, getText }) {
     const { threadID, messageID, senderID } = event;
@@ -68,14 +96,10 @@ module.exports.run = async function({ api, event, args, Users, getText }) {
     
     switch (command) {
         case 'add':
-        case 'thêm':
             return addSchedule();
         case 'remove':
-        case 'xóa':
-        case 'xoa':
             return removeSchedule();
         case 'view':
-        case 'xem':
             return viewSchedule();
         case 'clear':
         case 'clearall':
@@ -107,13 +131,16 @@ module.exports.run = async function({ api, event, args, Users, getText }) {
         const [hours, minutes] = timeStr.split(':');
         const normalizedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
         
+        // Lấy thời gian hiện tại Việt Nam để hiển thị
+        const vietnamDateTime = getVietnamDateTime();
+        
         // Thêm vào danh sách với thông tin threadID
         scheduleData[senderID].push({
             time: normalizedTime,
             content: content,
             threadID: threadID,
             created: Date.now(),
-            id: Date.now() // Thêm ID duy nhất để tránh trùng lặp
+            id: Date.now() + Math.random() // Thêm random để tránh trùng lặp hoàn toàn
         });
         
         // Sắp xếp theo thời gian
@@ -126,7 +153,7 @@ module.exports.run = async function({ api, event, args, Users, getText }) {
         // Lưu file
         fs.writeFileSync(dataPath, JSON.stringify(scheduleData, null, 2));
         
-        return api.sendMessage(`✅ Đã thêm lịch thành công!\n⏰ ${normalizedTime} - ${content}\n🔔 Nhắc nhở sẽ được gửi trong nhóm này`, threadID, messageID);
+        return api.sendMessage(`✅ Đã thêm lịch thành công!\n⏰ ${normalizedTime} - ${content}\nThời gian hiện tại: ${vietnamDateTime.fullDateTime}`, threadID, messageID);
     }
     
     // Xóa lịch
@@ -156,6 +183,8 @@ module.exports.run = async function({ api, event, args, Users, getText }) {
         }
         
         const userName = await Users.getNameUser(senderID);
+        const vietnamDateTime = getVietnamDateTime();
+        
         let message = `📅 THỜI KHÓA BIỂU CỦA ${userName.toUpperCase()}\n`;
         message += "═".repeat(40) + "\n";
         
@@ -165,6 +194,7 @@ module.exports.run = async function({ api, event, args, Users, getText }) {
         
         message += "═".repeat(40);
         message += `\n📊 Tổng cộng: ${userSchedules.length} lịch`;
+        message += `\n🕒 Thời gian hiện tại: ${vietnamDateTime.fullDateTime}`;
         message += `\n💡 Bot sẽ tự động nhắc nhở đúng giờ đã đặt`;
         
         return api.sendMessage(message, threadID, messageID);
@@ -192,13 +222,15 @@ module.exports.handleEvent = async function({ api, event, Users }) {
     const path = require('path');
     const dataPath = path.join(__dirname, 'cache', 'schedules.json');
     
-    // Lấy thời gian hiện tại
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    // Lấy thời gian hiện tại theo múi giờ Việt Nam
+    const currentTime = getVietnamTime();
     
     // Tránh kiểm tra cùng một thời điểm nhiều lần
     if (currentTime === lastCheckedTime) return;
     lastCheckedTime = currentTime;
+    
+    // Debug log - có thể bỏ comment để kiểm tra
+    // console.log(`[Schedule Debug] Checking time: ${currentTime} (Vietnam timezone)`);
     
     try {
         // Kiểm tra file tồn tại
@@ -212,14 +244,22 @@ module.exports.handleEvent = async function({ api, event, Users }) {
             const userSchedules = scheduleData[userID];
             
             // Tìm các lịch trùng với thời gian hiện tại
-            const matchingSchedules = userSchedules.filter(schedule => 
-                schedule.time === currentTime && 
-                !processedReminders.has(`${userID}_${schedule.id || schedule.created}`)
-            );
+            const matchingSchedules = userSchedules.filter(schedule => {
+                const scheduleMatches = schedule.time === currentTime;
+                const notProcessed = !processedReminders.has(`${userID}_${schedule.id || schedule.created}`);
+                
+                // Debug log cho từng lịch
+                if (scheduleMatches) {
+                    console.log(`[Schedule Match] User: ${userID}, Time: ${schedule.time}, Content: ${schedule.content}`);
+                }
+                
+                return scheduleMatches && notProcessed;
+            });
             
             if (matchingSchedules.length > 0) {
                 try {
                     const userName = await Users.getNameUser(userID);
+                    const vietnamDateTime = getVietnamDateTime();
                     
                     // Nhóm các lịch theo threadID
                     const schedulesByThread = {};
@@ -245,7 +285,10 @@ module.exports.handleEvent = async function({ api, event, Users }) {
                         });
                         
                         reminderMessage += "═".repeat(30);
-                        reminderMessage += `\n🕒 Thời gian: ${currentTime}`;
+                        reminderMessage += `\n🇻🇳 Thời gian: ${vietnamDateTime.fullDateTime}`;
+                        reminderMessage += `\n⏰ Đúng giờ đã đặt!`;
+                        
+                        console.log(`[Schedule Reminder] Sending to thread ${targetThreadID} for user ${userName}`);
                         
                         // Gửi tin nhắn với mention
                         try {
