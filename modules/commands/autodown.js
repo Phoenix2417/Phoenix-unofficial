@@ -42,7 +42,7 @@ module.exports.handleEvent = async function ({ api, event }) {
 
     let data;
     try {
-        const down = await axios.get(`https://j2phoenix.vercel.app/download?url ${url}`);
+        const down = await axios.get(`https://j2down.vercel.app/download?url=${url}`);
         data = down.data;
     } catch (error) {
         console.error('Error:', error.response ? error.response.data : error.message);
