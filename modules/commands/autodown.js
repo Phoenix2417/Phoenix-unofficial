@@ -1,140 +1,107 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
 module.exports.config = {
-    name: "autodown",
-    version: "1.1.0",
-    hasPermssion: 2,
-    credits: "LocDev - Converted to Mirai by Trae - Enhanced by Trae AI", 
-    description: "Autodown Facebook, Tiktok, YouTube, Instagram, Bilibili, Douyin, Capcut, Threads",
-    commandCategory: "Tiện ích",
-    usages: "[help]",
-    cooldowns: 5,
-    prefix: true
+  name: "autodown",
+  version: "0.0.2",
+  hasPermssion: 0,
+  credits: "LocDev (refactor by ChatGPT)",
+  description: "Tự động tải video/ảnh từ các nền tảng",
+  commandCategory: "Tiện ích",
+  usages: "[link]",
+  cooldowns: 5
 };
+
+async function streamUrl(url) {
+  const res = await axios({
+    url,
+    method: "GET",
+    responseType: "stream",
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/114.0.0.0 Safari/537.36",
+      "Referer": "https://www.youtube.com/",
+      "Accept": "*/*",
+      "Accept-Encoding": "identity;q=1, *;q=0",
+      "Range": "bytes=0-"
+    }
+  });
+  return res.data;
+}
+
+
+
+module.exports.run = () => {};
 
 module.exports.handleEvent = async function ({ api, event }) {
-    if (!event.body) return;
+  const { threadID, messageID, body } = event;
+  if (!body) return;
 
-    const url = event.body;
-    const isURL = /^http(s)?:\/\//.test(url);
+  const match = body.match(/https?:\/\/[^\s]+/g);
+  if (!match) return;
 
-    if (!isURL) return;
+  const url = match[0].replace(/[^\w\d:/?&=%.~-]/g, "");
+  const supported = [
+    "facebook.com",
+    "tiktok.com",
+    "v.douyin.com",
+    "instagram.com",
+    "threads.net",
+    "threads.com",
+    "youtube.com",
+    "youtu.be",
+    "capcut.com",
+    "x.com",
+    "twitter.com"
+  ];
 
-    const patterns = [
-        /instagram\.com/,
-        /facebook\.com/,
-        /pinterest\.com/,
-        /soundcloud\.com/,
-        /capcut\.com/,
-        /spotify\.com/,
-        /x\.com/,
-        /tiktok\.com/,
-        /youtube\.com/,
-        /threads\.net/,
-        /capcut\.com/,
-        /zingmp3\.vn/
-    ];
+  if (!supported.some(domain => url.includes(domain))) return;
 
-    const matches = patterns.find(pattern => pattern.test(url));
-    if (!matches) return;
+  try {
+    const response = await axios.get(`https://niio-team.onrender.com/downr?url=${encodeURIComponent(url)}`);
+    const data = response.data;
 
-    let data;
-    try {
-        const down = await axios.get(`https://j2down.vercel.app/download?url=${url}`);
-        data = down.data;
-    } catch (error) {
-        console.error('Error:', error.response ? error.response.data : error.message);
-        return;
+    const { author, title, source, medias } = data;
+    const header = `[${source?.toUpperCase() || "UNKNOWN"}] - Tự Động Tải`;
+    const info = `👤 Tác giả: ${author || "Không rõ"}\n💬 Tiêu đề: ${title || "Không rõ"}`;
+
+    if (!medias || medias.length === 0) {
+      return api.sendMessage("⚠️ Không tìm thấy nội dung media hợp lệ.", threadID, null, messageID);
     }
 
-    if (!data || !Array.isArray(data.medias) || data.medias.length === 0) {
-        return;
-    }
+    const firstMedia = medias[0]; // Lấy media đầu tiên
 
-    let fileContent = [];
-    const findImg = data.medias.find(item => item.type === 'image');
-
-    if (findImg) {
-        fileContent = data.medias
-            .filter(item => item.type === 'image' || item.type === 'video')
-            .map((item, index) => ({
-                path: path.join(__dirname, '..', '..', 'cache', `${Date.now() + index}.${item.type === 'video' ? 'mp4' : 'jpg'}`),
-                url: item.url
-            }));
-    } else {
-        fileContent.push({
-            path: path.join(__dirname, '..', '..', 'cache', `${Date.now()}.${data.medias[0].type === 'video' ? 'mp4' : data.medias[0].type === 'audio' ? 'mp3' : 'jpg'}`),
-            url: data.medias[0].url
-        });
-    }
-
-    let attachments = [];
-    for (const content of fileContent) {
-        try {
-            const attachment = await download(content.url, content.path);
-            if (attachment.err) {
-                continue;
+    if (firstMedia.type === "image") {
+      // Nếu là ảnh, gửi toàn bộ các ảnh
+      const imageStreams = await Promise.all(
+        medias
+          .filter(m => m.type === "image")
+          .map(async img => {
+            try {
+              return await streamUrl(img.url);
+            } catch (e) {
+              console.log("❌ Lỗi tải ảnh:", img.url, e.message);
+              return null;
             }
-            attachments.push(attachment);
-        } catch (error) {
-            console.error('Download error:', error);
-            continue;
-        }
-    }
+          })
+      );
 
-    if (attachments.length === 0) {
-        return;
-    }
-
-    let messageBody = `🎦 ${data.title || "AUTODOWN"}`;
-
-    api.sendMessage({
-        body: messageBody,
+      const attachments = imageStreams.filter(s => s !== null);
+      await api.sendMessage({
+        body: `${header}\n\n${info}`,
         attachment: attachments
-    }, event.threadID, event.messageID);
-};
+      }, threadID, null, messageID);
 
-module.exports.run = async function ({ api, event, args }) {
-    if (args[0] === 'help') {
-        return api.sendMessage(
-            '🔍 AUTODOWN HELPER\n\n' +
-            'Tự động tải xuống media từ các link được chia sẻ trong nhóm.\n\n' +
-            '📌 Các nền tảng được hỗ trợ:\n' +
-            'Tiktok, Douyin, Capcut, Threads, Instagram, Facebook, Pinterest, Reddit, Youtube, Twitter/X, Vimeo, Snapchat, Bilibili, Soundcloud, Spotify, Zingmp3 và nhiều nền tảng khác.\n\n' +
-            '💡 Cách sử dụng: Chỉ cần gửi link vào nhóm, bot sẽ tự động tải xuống.' ,
-            event.threadID,
-            event.messageID
-        );
     } else {
-        return api.sendMessage(
-            '🎦 AUTODOWN\n\nModule tự động tải xuống media từ các link được chia sẻ.\nDùng "autodown help" để xem hướng dẫn chi tiết.',
-            event.threadID,
-            event.messageID
-        );
+      // Mặc định gửi media đầu tiên (video)
+      const stream = await streamUrl(firstMedia.url);
+      await api.sendMessage({
+        body: `${header}\n\n${info}`,
+        attachment: stream
+      }, threadID, null, messageID);
     }
+  } catch (err) {
+    console.error("❌ Lỗi tải media:", err.message);
+    //api.sendMessage("⚠️ Lỗi khi xử lý liên kết. Vui lòng thử lại sau.", threadID, null, messageID);
+  }
 };
-
-async function download(url, savePath) {
-    try {
-        const dirPath = path.dirname(savePath);
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-        }
-        
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-
-        fs.writeFileSync(savePath, response.data);
-        setTimeout(() => {
-            fs.unlink(savePath, (err) => {
-                if (err) console.error('Lỗi khi xóa tệp:', err);
-            });
-        }, 1000 * 60);
-        
-        return fs.createReadStream(savePath);
-    } catch (error) {
-        console.error('Lỗi khi tải:', error.message);
-        return { err: true };
-    }
-}
