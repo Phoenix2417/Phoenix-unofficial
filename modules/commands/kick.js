@@ -8,7 +8,7 @@ module.exports.config = {
     images: [], 
     usages: "[tag/reply/all]", 
     cooldowns: 0, 
-    prefix: false
+    prefix: true,
 }; 
  
 module.exports.run = async function ({ 
