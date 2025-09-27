@@ -7,6 +7,6 @@ this.config = {
     commandCategory: "Admin",
     cooldowns: 0,
     images: [],
-    prefix: false,
+    prefix: true,
  };
  this.run = ({event, api}) => api.sendMessage("✅ Khởi động chương trình thành công!", event.threadID, () => process.exit(1), event.messageID)
